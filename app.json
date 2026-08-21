@@ -25,6 +25,15 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "FideliCard usa la fotocamera per scansionare il codice a barre delle tue tessere fedeltà.",
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "af2b44ba-0915-45c6-b989-af9b4bbcf354"

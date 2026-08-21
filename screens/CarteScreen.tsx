@@ -27,6 +27,7 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import { getBrandColor } from '../utils/getBrandColor';
 import logoMap from '../utils/logoMap';
+import BrandLogo from '../components/BrandLogo';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
@@ -36,6 +37,7 @@ type Carta = {
   uso?: number;
   logoFile?: string | null;
   colore?: string;
+  domain?: string | null;
 };
 
 export default function CarteScreen() {
@@ -117,13 +119,14 @@ export default function CarteScreen() {
           onPress={() => handlePress(index)}
           onLongPress={() => handleLongPress(index)}
         >
-          {logoSource ? (
-            <Image source={logoSource} style={styles.logo} resizeMode="contain" />
-          ) : (
-            <View style={[styles.logo, styles.logoPlaceholder]}>
-              <Text style={styles.placeholderText}>Logo</Text>
-            </View>
-          )}
+          <View style={styles.logo}>
+            <BrandLogo
+              brand={item.nome}
+              color={backgroundColor}
+              logoSource={logoSource}
+              domain={item.domain}
+            />
+          </View>
           <View style={styles.nameBadge}>
             <Text style={styles.nameText}>{item.nome}</Text>
           </View>
@@ -179,6 +182,11 @@ export default function CarteScreen() {
           columnWrapperStyle={{ justifyContent: 'space-between' }}
         />
       )}
+
+      {/* Spazio riservato per un banner pubblicitario (es. AdMob) */}
+      <View style={styles.adPlaceholder}>
+        <Text style={styles.adPlaceholderText}>Spazio pubblicitario</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -228,15 +236,6 @@ const styles = StyleSheet.create({
     height: '70%',
     alignSelf: 'center',
   },
-  logoPlaceholder: {
-    backgroundColor: '#ccc',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    fontSize: 12,
-    color: '#666',
-  },
   nameBadge: {
     backgroundColor: 'rgba(10, 10, 10, 0.77)',
     borderRadius: 20,
@@ -278,5 +277,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -60,
     right: 0,
+  },
+  adPlaceholder: {
+    height: 50,
+    borderRadius: 10,
+    marginTop: 8,
+    marginBottom: 4,
+    backgroundColor: '#1C1C1C',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  adPlaceholderText: {
+    fontSize: 12,
+    color: '#666',
   },
 });

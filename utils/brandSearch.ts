@@ -6,6 +6,7 @@ type BrandEntry = {
   brand: string;
   logoFile: string;
   color: string;
+  domain?: string;
 };
 
 export type BrandMatch = {
@@ -13,6 +14,7 @@ export type BrandMatch = {
   color: string;
   logoFile: string;
   logoUri: any | null;
+  domain: string | null;
   score: number;
 };
 
@@ -31,6 +33,7 @@ const toMatch = (item: BrandEntry, score: number): BrandMatch => ({
   color: item.color,
   logoFile: item.logoFile,
   logoUri: logoMap[item.logoFile] || null,
+  domain: item.domain || null,
   score,
 });
 

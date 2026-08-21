@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import tinycolor from 'tinycolor2';
 import {
   View,
   Text,
@@ -11,23 +10,34 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
+import BrandLogo from '../components/BrandLogo';
 
 export default function AddCardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'Aggiungi'>>();
   const [nome, setNome] = useState('');
   const [codice, setCodice] = useState('');
   const [logoFile, setLogoFile] = useState<string | null>(null);
   const [logoUri, setLogoUri] = useState<any | null>(null);
+  const [domain, setDomain] = useState<string | null>(null);
   const [colore, setColore] = useState<string>('#1E1E1E');
   const [suggestions, setSuggestions] = useState<BrandMatch[]>([]);
   // Nome della catena già confermato (da tap su un suggerimento o da match sul codice):
   // finché il testo coincide con questo valore, non ha senso riproporre i suggerimenti.
   const [confirmedBrand, setConfirmedBrand] = useState<string | null>(null);
+
+  // Codice tornato dalla fotocamera (schermata di scansione)
+  useEffect(() => {
+    if (route.params?.scannedCode) {
+      setCodice(route.params.scannedCode);
+      navigation.setParams({ scannedCode: undefined });
+    }
+  }, [route.params?.scannedCode]);
 
   // Riconoscimento automatico dal codice tessera (es. scansionato/digitato per intero)
   useEffect(() => {
@@ -58,6 +68,7 @@ export default function AddCardScreen() {
   const applyBrand = (info: BrandMatch) => {
     setLogoFile(info.logoFile);
     setLogoUri(info.logoUri);
+    setDomain(info.domain);
     setColore(info.color);
     setConfirmedBrand(info.brand);
     setSuggestions([]);
@@ -66,6 +77,7 @@ export default function AddCardScreen() {
   const resetBrand = () => {
     setLogoFile(null);
     setLogoUri(null);
+    setDomain(null);
     setColore('#1E1E1E');
     setConfirmedBrand(null);
     setSuggestions([]);
@@ -90,6 +102,7 @@ export default function AddCardScreen() {
       nome: nome.trim(),
       codice: codice.trim(),
       logoFile,
+      domain,
       colore,
     };
 
@@ -127,10 +140,8 @@ export default function AddCardScreen() {
               style={styles.suggestionRow}
               onPress={() => selectSuggestion(match)}
             >
-              <View style={[styles.suggestionSwatch, { backgroundColor: match.color }]}>
-                {match.logoUri && (
-                  <Image source={match.logoUri} style={styles.suggestionLogo} resizeMode="contain" />
-                )}
+              <View style={styles.suggestionSwatch}>
+                <BrandLogo brand={match.brand} color={match.color} logoSource={match.logoUri} domain={match.domain} />
               </View>
               <Text style={styles.suggestionText}>{match.brand}</Text>
             </TouchableOpacity>
@@ -138,29 +149,29 @@ export default function AddCardScreen() {
         </View>
       )}
 
-      <TextInput
-        style={[styles.input, { marginTop: 20, marginBottom: 40 }]}
-        placeholder="Codice tessera"
-        placeholderTextColor="#aaa"
-        value={codice}
-        onChangeText={setCodice}
-        keyboardType="default"
-      />
+      <View style={styles.codiceRow}>
+        <TextInput
+          style={[styles.input, styles.codiceInput]}
+          placeholder="Codice tessera"
+          placeholderTextColor="#aaa"
+          value={codice}
+          onChangeText={setCodice}
+          keyboardType="default"
+        />
+        <TouchableOpacity
+          style={styles.scanButton}
+          onPress={() => navigation.navigate('ScanCodice')}
+          accessibilityLabel="Scansiona il codice a barre"
+        >
+          <Text style={styles.scanButtonIcon}>📷</Text>
+        </TouchableOpacity>
+      </View>
 
       {confirmedBrand && (
         <View style={[styles.preview, { backgroundColor: colore }]}>
-          {logoUri ? (
-            <Image source={logoUri} style={styles.logoLarge} resizeMode="contain" />
-          ) : (
-            <Text
-              style={[
-                styles.previewText,
-                { color: tinycolor(colore).isLight() ? '#000' : '#fff' },
-              ]}
-            >
-              {nome}
-            </Text>
-          )}
+          <View style={styles.previewLogo}>
+            <BrandLogo brand={nome} color={colore} logoSource={logoUri} domain={domain} />
+          </View>
         </View>
       )}
 
@@ -213,18 +224,33 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 8,
     marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
     overflow: 'hidden',
-  },
-  suggestionLogo: {
-    width: '85%',
-    height: '85%',
   },
   suggestionText: {
     color: '#fff',
     fontSize: 15,
     fontWeight: '500',
+  },
+  codiceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  codiceInput: {
+    flex: 1,
+    marginRight: 10,
+  },
+  scanButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 10,
+    backgroundColor: '#2C2C2C',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scanButtonIcon: {
+    fontSize: 20,
   },
   preview: {
     height: 200,
@@ -238,13 +264,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  previewText: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  logoLarge: {
+  previewLogo: {
     width: 200,
     height: 130,
   },

@@ -8,12 +8,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import CarteScreen from './screens/CarteScreen';
 import AddCardScreen from './screens/AddCardScreen';
 import ShowCodeScreen from './screens/ShowCodeScreen';
+import ScanCodeScreen from './screens/ScanCodeScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
 
 export type RootStackParamList = {
   Home: undefined;
-  Aggiungi: undefined;
+  Aggiungi: { scannedCode?: string } | undefined;
   MostraCodice: { index: number };
+  ScanCodice: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -81,6 +83,11 @@ export default function App() {
           name="MostraCodice"
           component={ShowCodeScreen}
           options={{ title: 'Codice Tessera' }}
+        />
+        <Stack.Screen
+          name="ScanCodice"
+          component={ScanCodeScreen}
+          options={{ title: 'Scansiona codice' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
