@@ -54,6 +54,7 @@ export default function ShowCodeScreen() {
         <Barcode
           value={card.codice}
           format={format}
+          singleBarWidth={2}
           maxWidth={BARCODE_WIDTH}
           height={110}
           lineColor="#000000"
