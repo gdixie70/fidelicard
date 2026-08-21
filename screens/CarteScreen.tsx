@@ -25,9 +25,11 @@ import Reanimated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { getBrandColor } from '../utils/getBrandColor';
 import logoMap from '../utils/logoMap';
+import { getBrandInfo } from '../utils/brandSearch';
 import BrandLogo from '../components/BrandLogo';
+
+const DEFAULT_CARD_COLOR = '#1E1E1E';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
@@ -108,8 +110,14 @@ export default function CarteScreen() {
   );
 
   const renderItem = ({ item, index }: { item: Carta; index: number }) => {
-    const backgroundColor = item.colore || getBrandColor(item.nome);
-    const logoSource = item.logoFile ? logoMap[item.logoFile] : null;
+    // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
+    // dei dati salvati con la carta) così che le carte aggiunte tempo fa
+    // beneficino automaticamente di correzioni/aggiunte fatte in seguito a
+    // brands.json (colori, loghi, domini), senza dover ri-aggiungere la carta.
+    const brandInfo = getBrandInfo(item.nome);
+    const backgroundColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
+    const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
+    const domain = brandInfo?.domain ?? item.domain ?? null;
 
     return (
       <View style={styles.shadowContainer}>
@@ -124,7 +132,7 @@ export default function CarteScreen() {
               brand={item.nome}
               color={backgroundColor}
               logoSource={logoSource}
-              domain={item.domain}
+              domain={domain}
             />
           </View>
           <View style={styles.nameBadge}>
