@@ -32,6 +32,14 @@
           "cameraPermission": "FideliCard usa la fotocamera per scansionare il codice a barre delle tue tessere fedeltà.",
           "recordAudioAndroid": false
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FideliCard accede alle tue foto per riconoscere il codice a barre da uno screenshot o da una foto della tessera.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "extra": {

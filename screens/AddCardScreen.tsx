@@ -14,8 +14,22 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { scanFromURLAsync, BarcodeType } from 'expo-camera';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
 import BrandLogo from '../components/BrandLogo';
+
+const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
+  'ean13',
+  'ean8',
+  'upc_a',
+  'upc_e',
+  'code128',
+  'code39',
+  'codabar',
+  'itf14',
+  'qr',
+];
 
 export default function AddCardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -86,6 +100,34 @@ export default function AddCardScreen() {
   const selectSuggestion = (match: BrandMatch) => {
     setNome(match.brand);
     applyBrand(match);
+  };
+
+  const pickFromLibrary = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permesso negato', "Consenti l'accesso alle foto per importare uno screenshot della tessera.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 1,
+    });
+    if (result.canceled || !result.assets?.[0]) return;
+
+    try {
+      const decoded = await scanFromURLAsync(result.assets[0].uri, DECODABLE_BARCODE_TYPES);
+      if (decoded.length > 0) {
+        setCodice(decoded[0].data);
+      } else {
+        Alert.alert(
+          'Codice non trovato',
+          "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
+        );
+      }
+    } catch {
+      Alert.alert('Errore', "Non sono riuscito ad analizzare l'immagine selezionata.");
+    }
   };
 
   const saveCard = async () => {
@@ -165,6 +207,13 @@ export default function AddCardScreen() {
         >
           <Text style={styles.scanButtonIcon}>📷</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.scanButton}
+          onPress={pickFromLibrary}
+          accessibilityLabel="Importa il codice da una foto della libreria"
+        >
+          <Text style={styles.scanButtonIcon}>🖼️</Text>
+        </TouchableOpacity>
       </View>
 
       {confirmedBrand && (
@@ -239,12 +288,12 @@ const styles = StyleSheet.create({
   },
   codiceInput: {
     flex: 1,
-    marginRight: 10,
   },
   scanButton: {
     width: 46,
     height: 46,
     borderRadius: 10,
+    marginLeft: 10,
     backgroundColor: '#2C2C2C',
     alignItems: 'center',
     justifyContent: 'center',
