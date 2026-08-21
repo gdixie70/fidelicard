@@ -115,22 +115,27 @@ export default function CarteScreen() {
     // beneficino automaticamente di correzioni/aggiunte fatte in seguito a
     // brands.json (colori, loghi, domini), senza dover ri-aggiungere la carta.
     const brandInfo = getBrandInfo(item.nome);
-    const backgroundColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
+    const brandColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
     const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
     const domain = brandInfo?.domain ?? item.domain ?? null;
+    // Un logo vero ha già i suoi colori: su uno sfondo dello stesso colore del
+    // brand sparisce (es. il blu di Carrefour su sfondo blu). Sfondo bianco
+    // per i loghi reali, colore del brand solo per il badge con le iniziali.
+    const hasRealLogo = !!logoSource;
+    const backgroundColor = hasRealLogo ? '#FFFFFF' : brandColor;
 
     return (
       <View style={styles.shadowContainer}>
         <TouchableOpacity
-          style={[styles.card, { backgroundColor }]}
+          style={[styles.card, { backgroundColor }, hasRealLogo && styles.cardWithLogo]}
           activeOpacity={0.85}
           onPress={() => handlePress(index)}
           onLongPress={() => handleLongPress(index)}
         >
-          <View style={styles.logo}>
+          <View style={[styles.logo, hasRealLogo && styles.logoWithPadding]}>
             <BrandLogo
               brand={item.nome}
-              color={backgroundColor}
+              color={brandColor}
               logoSource={logoSource}
               domain={domain}
             />
@@ -239,10 +244,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 10,
   },
+  cardWithLogo: {
+    borderWidth: 1,
+    borderColor: '#E4E4E4',
+  },
   logo: {
     width: '100%',
     height: '70%',
     alignSelf: 'center',
+  },
+  logoWithPadding: {
+    width: '82%',
+    height: '58%',
   },
   nameBadge: {
     backgroundColor: 'rgba(10, 10, 10, 0.77)',

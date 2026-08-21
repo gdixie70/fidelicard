@@ -190,7 +190,7 @@ export default function AddCardScreen() {
               style={styles.suggestionRow}
               onPress={() => selectSuggestion(match)}
             >
-              <View style={styles.suggestionSwatch}>
+              <View style={[styles.suggestionSwatch, match.logoUri && styles.suggestionSwatchWithLogo]}>
                 <BrandLogo brand={match.brand} color={match.color} logoSource={match.logoUri} domain={match.domain} />
               </View>
               <Text style={styles.suggestionText}>{match.brand}</Text>
@@ -228,7 +228,7 @@ export default function AddCardScreen() {
       </Text>
 
       {confirmedBrand && (
-        <View style={[styles.preview, { backgroundColor: colore }]}>
+        <View style={[styles.preview, { backgroundColor: logoUri ? '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
             <BrandLogo brand={nome} color={colore} logoSource={logoUri} domain={domain} />
           </View>
@@ -285,6 +285,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
     overflow: 'hidden',
+  },
+  suggestionSwatchWithLogo: {
+    backgroundColor: '#FFFFFF',
+    padding: 4,
   },
   suggestionText: {
     color: '#fff',
