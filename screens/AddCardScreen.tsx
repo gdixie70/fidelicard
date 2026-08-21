@@ -215,6 +215,9 @@ export default function AddCardScreen() {
           <Text style={styles.scanButtonIcon}>🖼️</Text>
         </TouchableOpacity>
       </View>
+      <Text style={styles.codiceHint}>
+        Non hai la tessera con te? Scrivi qui il numero che vedi stampato (o mostrato a schermo) sotto al codice a barre.
+      </Text>
 
       {confirmedBrand && (
         <View style={[styles.preview, { backgroundColor: colore }]}>
@@ -284,7 +287,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
   },
   codiceInput: {
     flex: 1,
@@ -300,6 +302,12 @@ const styles = StyleSheet.create({
   },
   scanButtonIcon: {
     fontSize: 20,
+  },
+  codiceHint: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 8,
+    marginBottom: 30,
   },
   preview: {
     height: 200,
