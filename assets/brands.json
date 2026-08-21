@@ -1,0 +1,375 @@
+[
+  {
+    "prefix": "8020",
+    "brand": "Esselunga",
+    "logoFile": "esselunga.png",
+    "color": "#C8102E"
+  },
+  {
+    "prefix": "8019",
+    "brand": "Coop",
+    "logoFile": "coop.png",
+    "color": "#E30613"
+  },
+  {
+    "prefix": "8032",
+    "brand": "Conad",
+    "logoFile": "conad.png",
+    "color": "#FFD200"
+  },
+  {
+    "prefix": "8003",
+    "brand": "Decathlon",
+    "logoFile": "decathlon.png",
+    "color": "#007DC5"
+  },
+  {
+    "prefix": "8050",
+    "brand": "IKEA",
+    "logoFile": "ikea.png",
+    "color": "#0058ab"
+  },
+  {
+    "prefix": "8015",
+    "brand": "Carrefour",
+    "logoFile": "carrefour.png",
+    "color": "#005BAC"
+  },
+  {
+    "prefix": "8025",
+    "brand": "Eurospin",
+    "logoFile": "eurospin.png",
+    "color": "#0069b1"
+  },
+  {
+    "prefix": "8022",
+    "brand": "Lidl",
+    "logoFile": "lidl.png",
+    "color": "#2250a9"
+  },
+  {
+    "prefix": "8024",
+    "brand": "MD",
+    "logoFile": "md.png",
+    "color": "#005ea7"
+  },
+  {
+    "prefix": "8012",
+    "brand": "Penny Market",
+    "logoFile": "penny.png",
+    "color": "#DA291C"
+  },
+  {
+    "prefix": "8011",
+    "brand": "Pam",
+    "logoFile": "pam.png",
+    "color": "#007A33"
+  },
+  {
+    "prefix": "8008",
+    "brand": "Famila",
+    "logoFile": "famila.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8031",
+    "brand": "Bennet",
+    "logoFile": "bennet.png",
+    "color": "#fe0101"
+  },
+  {
+    "prefix": "8035",
+    "brand": "Il Gigante",
+    "logoFile": "ilgigante.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8040",
+    "brand": "Sigma",
+    "logoFile": "sigma.png",
+    "color": "#002776"
+  },
+  {
+    "prefix": "8042",
+    "brand": "Sisa",
+    "logoFile": "sisa.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8045",
+    "brand": "U2",
+    "logoFile": "u2.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8046",
+    "brand": "Todis",
+    "logoFile": "todis.png",
+    "color": "#ffe400"
+  },
+  {
+    "prefix": "8047",
+    "brand": "Dpiù",
+    "logoFile": "dpiu.png",
+    "color": "#005da9"
+  },
+  {
+    "prefix": "8048",
+    "brand": "Despar",
+    "logoFile": "despar.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8051",
+    "brand": "Decò",
+    "logoFile": "deco.png",
+    "color": "#1d333e"
+  },
+  {
+    "prefix": "8052",
+    "brand": "Brico Io",
+    "logoFile": "brico.png",
+    "color": "#d6d9da"
+  },
+  {
+    "prefix": "8053",
+    "brand": "OBI",
+    "logoFile": "obi.png",
+    "color": "#F28C00"
+  },
+  {
+    "prefix": "8054",
+    "brand": "Bricofer",
+    "logoFile": "bricofer.png",
+    "color": "#002C77"
+  },
+  {
+    "prefix": "8055",
+    "brand": "MediaWorld",
+    "logoFile": "mediaworld.png",
+    "color": "#E30613"
+  },
+  {
+    "prefix": "8056",
+    "brand": "Euronics",
+    "logoFile": "euronics.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8057",
+    "brand": "Carrefour Express",
+    "logoFile": "carrefourexpress.png",
+    "color": "#64A70B"
+  },
+  {
+    "prefix": "8058",
+    "brand": "Auchan",
+    "logoFile": "auchan.png",
+    "color": "#FFFFFF"
+  },
+  {
+    "prefix": "8059",
+    "brand": "In's Mercato",
+    "logoFile": "ins.png",
+    "color": "#003DA5"
+  },
+  {
+    "prefix": "8060",
+    "brand": "Unes",
+    "logoFile": "unes.png",
+    "color": "#FFFFFF"
+  },
+  {
+  "prefix": "8061",
+  "brand": "OVS",
+  "logoFile": "ovs.png",
+  "color": "#02243f"
+},
+{
+  "prefix": "8062",
+  "brand": "Terranova",
+  "logoFile": "terranova.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8063",
+  "brand": "Calliope",
+  "logoFile": "calliope.png",
+  "color": "#c4c177"
+},
+{
+  "prefix": "8064",
+  "brand": "Pinko",
+  "logoFile": "pinko.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8065",
+  "brand": "Zuiki",
+  "logoFile": "zuiki.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8066",
+  "brand": "Piazza Italia",
+  "logoFile": "piazza_italia.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8067",
+  "brand": "Alcott",
+  "logoFile": "alcott.png",
+  "color": "#FF6600"
+},
+{
+  "prefix": "8068",
+  "brand": "Motivi",
+  "logoFile": "motivi.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8069",
+  "brand": "United Colors of Benetton",
+  "logoFile": "benetton.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8070",
+  "brand": "Max&Co",
+  "logoFile": "maxco.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8071",
+  "brand": "Liu Jo",
+  "logoFile": "liujo.png",
+  "color": "#FFFFFF"
+},
+{
+  "prefix": "8072",
+  "brand": "Twinset",
+  "logoFile": "twinset.png",
+  "color": "#D10069"
+},
+{
+  "prefix": "8073",
+  "brand": "Replay",
+  "logoFile": "replay.png",
+  "color": "#2C3E50"
+},
+{
+  "prefix": "8074",
+  "brand": "Sisley",
+  "logoFile": "sisley.png",
+  "color": "#E63300"
+},
+{
+  "prefix": "8075",
+  "brand": "Yamamay",
+  "logoFile": "yamamay.png",
+  "color": "#E50022"
+},
+{
+  "prefix": "8076",
+  "brand": "Tezenis",
+  "logoFile": "tezenis.png",
+  "color": "#FF007F"
+},
+{
+  "prefix": "8077",
+  "brand": "Carpisa",
+  "logoFile": "carpisa.png",
+  "color": "#FF4300"
+},
+{
+  "prefix": "8078",
+  "brand": "Imperial",
+  "logoFile": "imperial.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8079",
+  "brand": "Gucci",
+  "logoFile": "gucci.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8080",
+  "brand": "Prada",
+  "logoFile": "prada.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8081",
+  "brand": "Armani",
+  "logoFile": "armani.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8082",
+  "brand": "Versace",
+  "logoFile": "versace.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8083",
+  "brand": "Dolce & Gabbana",
+  "logoFile": "dolceegabbana.png",
+  "color": "#F0F0F0"
+},
+{
+  "prefix": "8084",
+  "brand": "Fendi",
+  "logoFile": "fendi.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8085",
+  "brand": "Bottega Veneta",
+  "logoFile": "bottegaveneta.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8086",
+  "brand": "Moschino",
+  "logoFile": "moschino.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8087",
+  "brand": "Miu Miu",
+  "logoFile": "miumiu.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8088",
+  "brand": "Max Mara",
+  "logoFile": "maxmara.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8089",
+  "brand": "Trussardi",
+  "logoFile": "trussardi.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8090",
+  "brand": "Loro Piana",
+  "logoFile": "loropiana.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8091",
+  "brand": "Iper",
+  "logoFile": "iper.png",
+  "color": "#000000"
+},
+{
+  "prefix": "8092",
+  "brand": "Cisalfa Sport",
+  "logoFile": "cisalfa.png",
+  "color": "#E2001A"
+}
+
+]
