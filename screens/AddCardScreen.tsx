@@ -119,6 +119,14 @@ export default function AddCardScreen() {
       const decoded = await scanFromURLAsync(result.assets[0].uri, DECODABLE_BARCODE_TYPES);
       if (decoded.length > 0) {
         setCodice(decoded[0].data);
+      } else if (Platform.OS === 'ios') {
+        // Limite di iOS: il riconoscimento da immagine statica di expo-camera
+        // usa l'API Core Image, che su iOS legge solo i QR code (non i codici
+        // a barre "a righe" come EAN13/Code128, i più comuni sulle tessere).
+        Alert.alert(
+          'Solo QR da foto su iPhone',
+          "Su iPhone l'importazione da foto riconosce solo i codici QR: è un limite del sistema operativo, non dell'app. Per i codici a barre usa la fotocamera dal vivo (📷), oppure scrivi il numero a mano: di solito è stampato o mostrato subito sotto al codice."
+        );
       } else {
         Alert.alert(
           'Codice non trovato',
