@@ -176,6 +176,8 @@ export default function AddCardScreen() {
         placeholderTextColor="#aaa"
         value={nome}
         onChangeText={setNome}
+        autoCorrect={false}
+        spellCheck={false}
       />
 
       {suggestions.length > 0 && (
