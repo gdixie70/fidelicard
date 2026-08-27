@@ -12,7 +12,6 @@ import {
   Image,
   Animated as RNAnimated,
   Platform,
-  Share,
   AppState,
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -31,31 +30,19 @@ import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
 import { loadAllCards, saveAllCards } from '../utils/cardStore';
-import { DURATION_OPTIONS, computeExpiryDate, formatDateIt, isExpired } from '../utils/duration';
-import { buildLendLink } from '../utils/lendLink';
-import { getMyName, setMyName } from '../utils/profile';
-import { Carta, Prestito } from '../utils/types';
+import { isExpired } from '../utils/duration';
+import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
-import PromptModal from '../components/PromptModal';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
-type PendingLend = {
-  card: Carta;
-  optionKey: string;
-};
-
 export default function CarteScreen() {
   const [carte, setCarte] = useState<Carta[]>([]);
   const [filtro, setFiltro] = useState('');
   const [menuCardId, setMenuCardId] = useState<string | null>(null);
-  const [lendCardId, setLendCardId] = useState<string | null>(null);
-  const [pendingLend, setPendingLend] = useState<PendingLend | null>(null);
-  const [askMyName, setAskMyName] = useState(false);
-  const [askRecipient, setAskRecipient] = useState(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -113,12 +100,6 @@ export default function CarteScreen() {
     setCarte(cards);
   };
 
-  const updateCard = async (id: string, changes: Partial<Carta>) => {
-    const stored = await loadAllCards();
-    const next = stored.map((c) => (c.id === id ? { ...c, ...changes } : c));
-    await saveCards(next);
-  };
-
   const handlePress = (id: string) => {
     navigation.navigate('MostraCodice', { id });
   };
@@ -150,89 +131,16 @@ export default function CarteScreen() {
     ]);
   };
 
-  // --- Flusso "Presta la tessera": durata -> (nome mio, se non impostato) -> nome destinatario -> condivisione ---
-
-  const handleLendPress = (card: Carta) => {
-    setLendCardId(card.id);
-  };
-
-  const handleLendDurationChosen = async (card: Carta, optionKey: string) => {
-    setPendingLend({ card, optionKey });
-    const myName = await getMyName();
-    if (myName) {
-      setTimeout(() => setAskRecipient(true), 400);
-    } else {
-      setTimeout(() => setAskMyName(true), 400);
-    }
-  };
-
-  const handleMyNameConfirmed = async (name: string) => {
-    await setMyName(name);
-    setAskMyName(false);
-    setTimeout(() => setAskRecipient(true), 400);
-  };
-
-  const handleRecipientConfirmed = async (recipientName: string) => {
-    setAskRecipient(false);
-    if (!pendingLend) return;
-
-    const { card, optionKey } = pendingLend;
-    const option = DURATION_OPTIONS.find((o) => o.key === optionKey);
-    const myName = (await getMyName()) || '';
-    const expiry = option ? computeExpiryDate(option) : null;
-    const scadenzaIso = expiry ? expiry.toISOString() : null;
-
-    const brandInfo = getBrandInfo(card.nome);
-    const logoFile = brandInfo?.logoFile ?? card.logoFile ?? null;
-    const colore = brandInfo?.color || card.colore || DEFAULT_CARD_COLOR;
-
-    const link = buildLendLink({
-      nome: card.nome,
-      codice: card.codice,
-      logoFile,
-      colore,
-      da: myName,
-      scadenza: scadenzaIso,
-    });
-
-    const nuovoPrestito: Prestito = {
-      destinatario: recipientName,
-      concessoIl: new Date().toISOString(),
-      scadenza: scadenzaIso,
-    };
-    // Se avevi già prestato questa carta alla stessa persona, aggiorna la
-    // riga invece di duplicarla.
-    const prestitiPrecedenti = (card.prestiti || []).filter(
-      (p) => p.destinatario.toLowerCase() !== recipientName.toLowerCase()
-    );
-    await updateCard(card.id, { prestiti: [...prestitiPrecedenti, nuovoPrestito] });
-
-    const scadenzaTesto = scadenzaIso ? `fino al ${formatDateIt(scadenzaIso)}` : 'senza scadenza';
-
-    setPendingLend(null);
-    setTimeout(async () => {
-      try {
-        await Share.share({
-          message: `Ti presto la tessera ${card.nome} (${scadenzaTesto}). Tocca per aggiungerla in FideliCard: ${link}`,
-        });
-      } catch {
-        // l'utente ha semplicemente chiuso il foglio di condivisione
-      }
-    }, 400);
-  };
-
   const filteredCards = carte.filter((carta) =>
     carta.nome.toLowerCase().includes(filtro.toLowerCase())
   );
 
   const menuCard = menuCardId ? carte.find((c) => c.id === menuCardId) ?? null : null;
-  const lendCard = lendCardId ? carte.find((c) => c.id === lendCardId) ?? null : null;
 
   const cardActions: ActionSheetItem[] = menuCard
     ? [
         { key: 'copy', icon: '📋', label: 'Copia codice', onPress: () => handleCopyCode(menuCard) },
         { key: 'edit', icon: '✏️', label: 'Modifica', onPress: () => handleEdit(menuCard) },
-        { key: 'lend', icon: '🤝', label: 'Presta la tessera', onPress: () => handleLendPress(menuCard) },
         {
           key: 'delete',
           icon: '🗑️',
@@ -241,14 +149,6 @@ export default function CarteScreen() {
           onPress: () => handleDeleteConfirm(menuCard),
         },
       ]
-    : [];
-
-  const durationActions: ActionSheetItem[] = lendCard
-    ? DURATION_OPTIONS.map((option) => ({
-        key: option.key,
-        label: option.label,
-        onPress: () => handleLendDurationChosen(lendCard, option.key),
-      }))
     : [];
 
   const renderItem = ({ item }: { item: Carta }) => {
@@ -364,34 +264,6 @@ export default function CarteScreen() {
         title={menuCard?.nome}
         items={cardActions}
         onClose={() => setMenuCardId(null)}
-      />
-      <ActionSheet
-        visible={!!lendCard}
-        title="Per quanto tempo?"
-        items={durationActions}
-        onClose={() => setLendCardId(null)}
-      />
-      <PromptModal
-        visible={askMyName}
-        title="Come ti chiami? Lo vedrà chi riceve la tessera."
-        placeholder="Il tuo nome"
-        confirmLabel="Avanti"
-        onConfirm={handleMyNameConfirmed}
-        onCancel={() => {
-          setAskMyName(false);
-          setPendingLend(null);
-        }}
-      />
-      <PromptModal
-        visible={askRecipient}
-        title="A chi presti questa tessera?"
-        placeholder="Nome del destinatario"
-        confirmLabel="Condividi"
-        onConfirm={handleRecipientConfirmed}
-        onCancel={() => {
-          setAskRecipient(false);
-          setPendingLend(null);
-        }}
       />
     </SafeAreaView>
   );

@@ -15,6 +15,18 @@ export async function saveAllCards(cards: Carta[]): Promise<void> {
 }
 
 /**
+ * Legge lo stato più recente da disco, applica le modifiche a UNA carta
+ * (per id) e salva - usato da più schermate (Carte, Collabora) per non
+ * rischiare di sovrascrivere modifiche fatte nel frattempo altrove.
+ */
+export async function updateCardById(id: string, changes: Partial<Carta>): Promise<Carta[]> {
+  const cards = await loadAllCards();
+  const next = cards.map((c) => (c.id === id ? { ...c, ...changes } : c));
+  await saveAllCards(next);
+  return next;
+}
+
+/**
  * Una tessera ricevuta in prestito è "duplicata" solo se il codice coincide
  * esattamente con una già presente: un utente può avere sia la propria
  * tessera di un brand sia una o più tessere dello stesso brand prestate da

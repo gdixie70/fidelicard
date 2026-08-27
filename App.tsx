@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import CarteScreen from './screens/CarteScreen';
+import CollaboraScreen from './screens/CollaboraScreen';
 import AddCardScreen from './screens/AddCardScreen';
 import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
@@ -62,6 +63,11 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
             </TouchableOpacity>
           ),
         }}
+      />
+      <Tab.Screen
+        name="Collabora"
+        component={CollaboraScreen}
+        options={{ title: 'Collabora' }}
       />
     </Tab.Navigator>
   );
