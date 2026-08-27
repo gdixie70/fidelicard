@@ -425,5 +425,89 @@
     "brand": "MillionStore",
     "logoFile": "millionstore.jpg",
     "color": "#1A1A1A"
+  },
+  {
+    "prefix": "8095",
+    "brand": "Crai",
+    "logoFile": "crai.png",
+    "color": "#0A6E3C",
+    "domain": "crai.it"
+  },
+  {
+    "prefix": "8096",
+    "brand": "Simply Market",
+    "logoFile": "simplymarket.png",
+    "color": "#E30613",
+    "domain": "simplymarket.it"
+  },
+  {
+    "prefix": "8097",
+    "brand": "Aldi",
+    "logoFile": "aldi.png",
+    "color": "#041E42",
+    "domain": "aldi.it"
+  },
+  {
+    "prefix": "8098",
+    "brand": "Acqua & Sapone",
+    "logoFile": "acquaesapone.png",
+    "color": "#004A98",
+    "domain": "acquaesapone.it"
+  },
+  {
+    "prefix": "8099",
+    "brand": "Unieuro",
+    "logoFile": "unieuro.png",
+    "color": "#0F1A46",
+    "domain": "unieuro.it"
+  },
+  {
+    "prefix": "8100",
+    "brand": "Leroy Merlin",
+    "logoFile": "leroymerlin.png",
+    "color": "#8CC63F",
+    "domain": "leroymerlin.it"
+  },
+  {
+    "prefix": "8101",
+    "brand": "Kiko Milano",
+    "logoFile": "kikomilano.png",
+    "color": "#000000",
+    "domain": "kikocosmetics.com"
+  },
+  {
+    "prefix": "8102",
+    "brand": "WindTre",
+    "logoFile": "windtre.png",
+    "color": "#F0631D",
+    "domain": "windtre.it"
+  },
+  {
+    "prefix": "8103",
+    "brand": "TIM",
+    "logoFile": "tim.png",
+    "color": "#004990",
+    "domain": "tim.it"
+  },
+  {
+    "prefix": "8104",
+    "brand": "Vodafone",
+    "logoFile": "vodafone.png",
+    "color": "#E60000",
+    "domain": "vodafone.it"
+  },
+  {
+    "prefix": "8105",
+    "brand": "Iliad",
+    "logoFile": "iliad.png",
+    "color": "#CE0E2D",
+    "domain": "iliad.it"
+  },
+  {
+    "prefix": "8106",
+    "brand": "Sephora",
+    "logoFile": "sephora.png",
+    "color": "#000000",
+    "domain": "sephora.it"
   }
 ]

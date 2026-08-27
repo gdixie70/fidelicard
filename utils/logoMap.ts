@@ -63,6 +63,18 @@ const logoMap: { [key: string]: any } = {
   'imperial.png': require('../assets/loghi/imperial.png'),
   'cisalfa.png': require('../assets/loghi/cisalfa.png'),
   'millionstore.jpg': require('../assets/loghi/millionstore.jpg'),
+  'crai.png': require('../assets/loghi/crai.png'),
+  'simplymarket.png': require('../assets/loghi/simplymarket.png'),
+  'aldi.png': require('../assets/loghi/aldi.png'),
+  'acquaesapone.png': require('../assets/loghi/acquaesapone.png'),
+  'unieuro.png': require('../assets/loghi/unieuro.png'),
+  'leroymerlin.png': require('../assets/loghi/leroymerlin.png'),
+  'kikomilano.png': require('../assets/loghi/kikomilano.png'),
+  'windtre.png': require('../assets/loghi/windtre.png'),
+  'tim.png': require('../assets/loghi/tim.png'),
+  'vodafone.png': require('../assets/loghi/vodafone.png'),
+  'iliad.png': require('../assets/loghi/iliad.png'),
+  'sephora.png': require('../assets/loghi/sephora.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 
