@@ -1,5 +1,5 @@
 // CarteScreen.tsx con animazione e colori Fidelicard + delay + sfondo logo semi-trasparente visibile sempre
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -27,7 +27,6 @@ import Reanimated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
-import * as Contacts from 'expo-contacts';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
@@ -57,11 +56,6 @@ export default function CarteScreen() {
   const [pendingLend, setPendingLend] = useState<PendingLend | null>(null);
   const [askMyName, setAskMyName] = useState(false);
   const [askRecipient, setAskRecipient] = useState(false);
-  const [recipientChoiceVisible, setRecipientChoiceVisible] = useState(false);
-  // Il modulo nativo della rubrica permette un solo selettore alla volta:
-  // questa guardia evita che un doppio tocco ne apra due in sovrapposizione,
-  // che farebbe fallire entrambi in silenzio (o con l'errore "picking in progress").
-  const isPickingContactRef = useRef(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -166,7 +160,7 @@ export default function CarteScreen() {
     setPendingLend({ card, optionKey });
     const myName = await getMyName();
     if (myName) {
-      setTimeout(() => setRecipientChoiceVisible(true), 400);
+      setTimeout(() => setAskRecipient(true), 400);
     } else {
       setTimeout(() => setAskMyName(true), 400);
     }
@@ -175,40 +169,7 @@ export default function CarteScreen() {
   const handleMyNameConfirmed = async (name: string) => {
     await setMyName(name);
     setAskMyName(false);
-    setTimeout(() => setRecipientChoiceVisible(true), 400);
-  };
-
-  // Sceglie il destinatario dalla rubrica (uguale su iOS e Android). Se
-  // l'utente annulla o nega il permesso, si può comunque scrivere il nome
-  // a mano - il prestito non richiede che il destinatario sia in rubrica.
-  const pickRecipient = async () => {
-    if (isPickingContactRef.current) return; // già in corso, ignora il doppio tocco
-    isPickingContactRef.current = true;
-
-    try {
-      if (Platform.OS === 'android') {
-        const permission = await Contacts.requestPermissionsAsync();
-        if (!permission.granted) {
-          setAskRecipient(true);
-          return;
-        }
-      }
-
-      const contact = await Contacts.presentContactPickerAsync();
-      if (contact?.name) {
-        handleRecipientConfirmed(contact.name);
-      }
-      // contact null = l'utente ha annullato il selettore: non forziamo
-      // l'inserimento manuale, può riprovare da "Presta la tessera".
-    } catch (error: any) {
-      Alert.alert(
-        'Rubrica non disponibile',
-        `Non sono riuscito ad aprire la rubrica (${error?.message || 'errore sconosciuto'}). Se il problema persiste, prova a riavviare del tutto l'app. Nel frattempo scrivi pure il nome a mano.`
-      );
-      setAskRecipient(true);
-    } finally {
-      isPickingContactRef.current = false;
-    }
+    setTimeout(() => setAskRecipient(true), 400);
   };
 
   const handleRecipientConfirmed = async (recipientName: string) => {
@@ -289,11 +250,6 @@ export default function CarteScreen() {
         onPress: () => handleLendDurationChosen(lendCard, option.key),
       }))
     : [];
-
-  const recipientChoiceActions: ActionSheetItem[] = [
-    { key: 'contacts', icon: '📇', label: 'Scegli dalla rubrica', onPress: pickRecipient },
-    { key: 'manual', icon: '⌨️', label: 'Scrivi il nome', onPress: () => setAskRecipient(true) },
-  ];
 
   const renderItem = ({ item }: { item: Carta }) => {
     // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
@@ -414,12 +370,6 @@ export default function CarteScreen() {
         title="Per quanto tempo?"
         items={durationActions}
         onClose={() => setLendCardId(null)}
-      />
-      <ActionSheet
-        visible={recipientChoiceVisible}
-        title="A chi presti questa tessera?"
-        items={recipientChoiceActions}
-        onClose={() => setRecipientChoiceVisible(false)}
       />
       <PromptModal
         visible={askMyName}
