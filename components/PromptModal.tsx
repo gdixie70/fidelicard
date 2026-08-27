@@ -9,6 +9,10 @@ type Props = {
   confirmLabel?: string;
   onConfirm: (value: string) => void;
   onCancel: () => void;
+  // Chiamato (solo iOS) quando l'animazione di chiusura è davvero finita:
+  // serve per aprire in sicurezza un'altra UI nativa (es. il foglio di
+  // condivisione) subito dopo, senza indovinare un timeout.
+  onDismiss?: () => void;
 };
 
 /**
@@ -24,6 +28,7 @@ export default function PromptModal({
   confirmLabel = 'Conferma',
   onConfirm,
   onCancel,
+  onDismiss,
 }: Props) {
   const [value, setValue] = useState(initialValue);
 
@@ -37,7 +42,13 @@ export default function PromptModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+      onDismiss={onDismiss}
+    >
       <Pressable style={styles.backdrop} onPress={onCancel}>
         <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
           <Text style={styles.title}>{title}</Text>

@@ -8,6 +8,7 @@ import {
   Alert,
   Share,
   AppState,
+  Platform,
 } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -41,6 +42,11 @@ export default function CollaboraScreen() {
   // impostato il proprio nome: la riprendiamo appena l'onboarding finisce,
   // senza fargli toccare la carta una seconda volta.
   const [cardAwaitingName, setCardAwaitingName] = useState<Carta | null>(null);
+  // Testo da condividere non appena il prompt del destinatario si è
+  // davvero chiuso (vedi handleRecipientModalDismissed): su iOS aprire il
+  // foglio di condivisione troppo presto, mentre l'animazione di chiusura
+  // del Modal precedente è ancora in corso, lo fa fallire in silenzio.
+  const [pendingShareMessage, setPendingShareMessage] = useState<string | null>(null);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -124,17 +130,32 @@ export default function CollaboraScreen() {
     setCarte(next.filter((c) => !isExpired(c.scadenza)));
 
     const scadenzaTesto = scadenzaIso ? `fino al ${formatDateIt(scadenzaIso)}` : 'senza scadenza';
+    const message = `Ti presto la tessera ${card.nome} (${scadenzaTesto}). Tocca per aggiungerla in FideliCard: ${link}`;
 
     setPendingLend(null);
-    setTimeout(async () => {
-      try {
-        await Share.share({
-          message: `Ti presto la tessera ${card.nome} (${scadenzaTesto}). Tocca per aggiungerla in FideliCard: ${link}`,
-        });
-      } catch {
-        // l'utente ha semplicemente chiuso il foglio di condivisione
-      }
-    }, 400);
+    if (Platform.OS === 'ios') {
+      // Il Modal del destinatario è già in fase di chiusura (setAskRecipient
+      // sopra): aspettiamo che l'animazione finisca davvero (onDismiss) prima
+      // di aprire il foglio di condivisione, altrimenti iOS lo apre a vuoto.
+      setPendingShareMessage(message);
+    } else {
+      setTimeout(() => shareLendMessage(message), 400);
+    }
+  };
+
+  const shareLendMessage = async (message: string) => {
+    try {
+      await Share.share({ message });
+    } catch (err) {
+      console.warn('Condivisione del prestito non riuscita', err);
+    }
+  };
+
+  const handleRecipientModalDismissed = () => {
+    if (!pendingShareMessage) return;
+    const message = pendingShareMessage;
+    setPendingShareMessage(null);
+    shareLendMessage(message);
   };
 
   const removePrestito = (card: Carta, destinatario: string) => {
@@ -267,6 +288,7 @@ export default function CollaboraScreen() {
           setAskRecipient(false);
           setPendingLend(null);
         }}
+        onDismiss={handleRecipientModalDismissed}
       />
       <PromptModal
         visible={onboardingVisible}
