@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Share, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import * as Clipboard from 'expo-clipboard';
 import Barcode from 'react-native-barcode-svg';
 import { detectBarcodeFormat, BarcodeFormat } from '../utils/barcodeFormat';
 
@@ -23,6 +24,7 @@ export default function ShowCodeScreen() {
   const route = useRoute<RouteProp<Params>>();
   const [card, setCard] = useState<Carta | null>(null);
   const [format, setFormat] = useState<BarcodeFormat>('CODE128');
+  const [copied, setCopied] = useState(false);
   const index = route.params.index;
 
   useEffect(() => {
@@ -42,6 +44,24 @@ export default function ShowCodeScreen() {
 
       setCard(carte[index]);
       setFormat(detectBarcodeFormat(carte[index].codice));
+    }
+  };
+
+  const copyCode = async () => {
+    if (!card) return;
+    await Clipboard.setStringAsync(card.codice);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareCode = async () => {
+    if (!card) return;
+    try {
+      await Share.share({
+        message: `${card.nome}: ${card.codice}`,
+      });
+    } catch {
+      Alert.alert('Errore', 'Non sono riuscito ad aprire la condivisione.');
     }
   };
 
@@ -66,6 +86,17 @@ export default function ShowCodeScreen() {
         />
       </View>
       <Text style={styles.code}>{card.codice}</Text>
+
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.actionButton} onPress={copyCode}>
+          <Text style={styles.actionIcon}>{copied ? '✅' : '📋'}</Text>
+          <Text style={styles.actionText}>{copied ? 'Copiato' : 'Copia codice'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={shareCode}>
+          <Text style={styles.actionIcon}>📤</Text>
+          <Text style={styles.actionText}>Condividi</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -80,4 +111,25 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   code: { marginTop: 20, fontSize: 18, letterSpacing: 1.5 },
+  actionsRow: {
+    flexDirection: 'row',
+    marginTop: 30,
+  },
+  actionButton: {
+    alignItems: 'center',
+    backgroundColor: '#f2f2f2',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginHorizontal: 8,
+  },
+  actionIcon: {
+    fontSize: 22,
+    marginBottom: 4,
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#333',
+  },
 });
