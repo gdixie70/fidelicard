@@ -1,6 +1,5 @@
-// Mappa dei loghi inclusi nell'app: tutti loghi ufficiali reali, recuperati
-// da Wikimedia Commons/Wikipedia. Cisalfa Sport non ha un logo reale (nessuna
-// fonte affidabile trovata): mostra il badge colorato automatico.
+// Mappa dei loghi inclusi nell'app: tutti loghi ufficiali reali (recuperati
+// da Wikimedia Commons/Wikipedia o forniti direttamente).
 const logoMap: { [key: string]: any } = {
   'esselunga.png': require('../assets/loghi/esselunga.png'),
   'coop.png': require('../assets/loghi/coop.png'),
@@ -53,6 +52,17 @@ const logoMap: { [key: string]: any } = {
   'maxmara.png': require('../assets/loghi/maxmara.png'),
   'trussardi.png': require('../assets/loghi/trussardi.png'),
   'loropiana.png': require('../assets/loghi/loropiana.png'),
+  'ilgigante.png': require('../assets/loghi/ilgigante.png'),
+  'u2.png': require('../assets/loghi/u2.png'),
+  'dpiu.png': require('../assets/loghi/dpiu.png'),
+  'inss.png': require('../assets/loghi/inss.png'),
+  'calliope.png': require('../assets/loghi/calliope.png'),
+  'zuiki.png': require('../assets/loghi/zuiki.png'),
+  'motivi.png': require('../assets/loghi/motivi.png'),
+  'maxeco.png': require('../assets/loghi/maxeco.png'),
+  'imperial.png': require('../assets/loghi/imperial.png'),
+  'cisalfa.png': require('../assets/loghi/cisalfa.png'),
+  'millionstore.jpg': require('../assets/loghi/millionstore.jpg'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 

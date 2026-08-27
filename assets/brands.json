@@ -191,7 +191,7 @@
   {
     "prefix": "8059",
     "brand": "In's Mercato",
-    "logoFile": "ins.png",
+    "logoFile": "inss.png",
     "color": "#003DA5"
   },
   {
@@ -264,7 +264,7 @@
   {
     "prefix": "8070",
     "brand": "Max&Co",
-    "logoFile": "maxco.png",
+    "logoFile": "maxeco.png",
     "color": "#FFFFFF",
     "domain": "maxandco.com"
   },
@@ -419,5 +419,11 @@
     "logoFile": "cisalfa.png",
     "color": "#E2001A",
     "domain": "cisalfasport.it"
+  },
+  {
+    "prefix": "8094",
+    "brand": "MillionStore",
+    "logoFile": "millionstore.jpg",
+    "color": "#1A1A1A"
   }
 ]
