@@ -1,5 +1,5 @@
 // CarteScreen.tsx con animazione e colori Fidelicard + delay + sfondo logo semi-trasparente visibile sempre
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -58,6 +58,10 @@ export default function CarteScreen() {
   const [askMyName, setAskMyName] = useState(false);
   const [askRecipient, setAskRecipient] = useState(false);
   const [recipientChoiceVisible, setRecipientChoiceVisible] = useState(false);
+  // Il modulo nativo della rubrica permette un solo selettore alla volta:
+  // questa guardia evita che un doppio tocco ne apra due in sovrapposizione,
+  // che farebbe fallire entrambi in silenzio (o con l'errore "picking in progress").
+  const isPickingContactRef = useRef(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -178,6 +182,9 @@ export default function CarteScreen() {
   // l'utente annulla o nega il permesso, si può comunque scrivere il nome
   // a mano - il prestito non richiede che il destinatario sia in rubrica.
   const pickRecipient = async () => {
+    if (isPickingContactRef.current) return; // già in corso, ignora il doppio tocco
+    isPickingContactRef.current = true;
+
     try {
       if (Platform.OS === 'android') {
         const permission = await Contacts.requestPermissionsAsync();
@@ -196,9 +203,11 @@ export default function CarteScreen() {
     } catch (error: any) {
       Alert.alert(
         'Rubrica non disponibile',
-        `Non sono riuscito ad aprire la rubrica (${error?.message || 'errore sconosciuto'}). Scrivi pure il nome a mano.`
+        `Non sono riuscito ad aprire la rubrica (${error?.message || 'errore sconosciuto'}). Se il problema persiste, prova a riavviare del tutto l'app. Nel frattempo scrivi pure il nome a mano.`
       );
       setAskRecipient(true);
+    } finally {
+      isPickingContactRef.current = false;
     }
   };
 
