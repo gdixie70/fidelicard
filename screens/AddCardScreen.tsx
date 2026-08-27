@@ -20,6 +20,7 @@ import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
 import logoMap from '../utils/logoMap';
 import { generateId } from '../utils/id';
 import { DURATION_OPTIONS, computeExpiryDate, formatDateIt } from '../utils/duration';
+import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 
@@ -34,17 +35,6 @@ const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'itf14',
   'qr',
 ];
-
-type CartaSalvata = {
-  id: string;
-  nome: string;
-  codice: string;
-  uso?: number;
-  logoFile?: string | null;
-  colore?: string;
-  scadenza?: string | null;
-  prestataFino?: string | null;
-};
 
 export default function AddCardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -73,7 +63,7 @@ export default function AddCardScreen() {
 
     (async () => {
       const json = await AsyncStorage.getItem('carte');
-      const carte: CartaSalvata[] = json ? JSON.parse(json) : [];
+      const carte: Carta[] = json ? JSON.parse(json) : [];
       const found = carte.find((c) => c.id === editId);
       if (!found) return;
 
@@ -198,7 +188,7 @@ export default function AddCardScreen() {
 
     try {
       const carteSalvate = await AsyncStorage.getItem('carte');
-      const carte: CartaSalvata[] = carteSalvate ? JSON.parse(carteSalvate) : [];
+      const carte: Carta[] = carteSalvate ? JSON.parse(carteSalvate) : [];
 
       if (editId) {
         const index = carte.findIndex((c) => c.id === editId);

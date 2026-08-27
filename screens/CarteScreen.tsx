@@ -13,8 +13,8 @@ import {
   Animated as RNAnimated,
   Platform,
   Share,
+  AppState,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
@@ -30,25 +30,22 @@ import * as Clipboard from 'expo-clipboard';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
-import { generateId } from '../utils/id';
+import { loadAllCards, saveAllCards } from '../utils/cardStore';
 import { DURATION_OPTIONS, computeExpiryDate, formatDateIt, isExpired } from '../utils/duration';
+import { buildLendLink } from '../utils/lendLink';
+import { getMyName, setMyName } from '../utils/profile';
+import { Carta, Prestito } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
+import PromptModal from '../components/PromptModal';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
-type Carta = {
-  id: string;
-  nome: string;
-  codice: string;
-  uso?: number;
-  logoFile?: string | null;
-  colore?: string;
-  domain?: string | null;
-  scadenza?: string | null; // rimozione automatica della carta dopo questa data
-  prestataFino?: string | null; // promemoria: "in prestito fino al..." (solo informativo)
+type PendingLend = {
+  card: Carta;
+  optionKey: string;
 };
 
 export default function CarteScreen() {
@@ -56,6 +53,9 @@ export default function CarteScreen() {
   const [filtro, setFiltro] = useState('');
   const [menuCardId, setMenuCardId] = useState<string | null>(null);
   const [lendCardId, setLendCardId] = useState<string | null>(null);
+  const [pendingLend, setPendingLend] = useState<PendingLend | null>(null);
+  const [askMyName, setAskMyName] = useState(false);
+  const [askRecipient, setAskRecipient] = useState(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -66,6 +66,16 @@ export default function CarteScreen() {
       loadCards();
     }
   }, [isFocused]);
+
+  // Se l'app torna in primo piano (es. dopo aver toccato un link di
+  // prestito ricevuto mentre eravamo in un'altra app), ricarica l'elenco:
+  // la nuova carta potrebbe essere stata aggiunta nel frattempo.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') loadCards();
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     if (carte.length === 0) {
@@ -82,57 +92,29 @@ export default function CarteScreen() {
   }));
 
   const loadCards = async () => {
-    const json = await AsyncStorage.getItem('carte');
-    if (!json) {
-      setCarte([]);
-      return;
-    }
-
-    const parsed: Carta[] = JSON.parse(json);
+    const parsed = await loadAllCards();
     let changed = false;
-
-    // Le carte già mancanti di un id (salvate prima di questa versione) ne
-    // ricevono uno stabile ora, così le azioni della card operano sempre
-    // sulla carta giusta indipendentemente dall'ordinamento a schermo.
-    const withIds = parsed.map((c) => {
-      if (!c.id) {
-        changed = true;
-        return { ...c, id: generateId() };
-      }
-      return c;
-    });
 
     // Rimuove automaticamente le carte con una scadenza superata (es. una
     // tessera ricevuta in prestito con una durata concordata).
-    const active = withIds.filter((c) => !isExpired(c.scadenza));
-    if (active.length !== withIds.length) changed = true;
-
-    // Il promemoria "in prestito fino al..." è solo un'etichetta: una volta
-    // passata la data si toglie da sola, la carta (che resta tua) non si tocca.
-    const cleaned = active.map((c) => {
-      if (c.prestataFino && isExpired(c.prestataFino)) {
-        changed = true;
-        return { ...c, prestataFino: null };
-      }
-      return c;
-    });
+    const active = parsed.filter((c) => !isExpired(c.scadenza));
+    if (active.length !== parsed.length) changed = true;
 
     if (changed) {
-      await AsyncStorage.setItem('carte', JSON.stringify(cleaned));
+      await saveAllCards(active);
     }
 
-    const sorted = [...cleaned].sort((a, b) => (b.uso || 0) - (a.uso || 0));
+    const sorted = [...active].sort((a, b) => (b.uso || 0) - (a.uso || 0));
     setCarte(sorted);
   };
 
   const saveCards = async (cards: Carta[]) => {
-    await AsyncStorage.setItem('carte', JSON.stringify(cards));
+    await saveAllCards(cards);
     setCarte(cards);
   };
 
   const updateCard = async (id: string, changes: Partial<Carta>) => {
-    const json = await AsyncStorage.getItem('carte');
-    const stored: Carta[] = json ? JSON.parse(json) : [];
+    const stored = await loadAllCards();
     const next = stored.map((c) => (c.id === id ? { ...c, ...changes } : c));
     await saveCards(next);
   };
@@ -168,28 +150,75 @@ export default function CarteScreen() {
     ]);
   };
 
+  // --- Flusso "Presta la tessera": durata -> (nome mio, se non impostato) -> nome destinatario -> condivisione ---
+
   const handleLendPress = (card: Carta) => {
     setLendCardId(card.id);
   };
 
-  const handleLendDuration = async (card: Carta, optionKey: string) => {
-    const option = DURATION_OPTIONS.find((o) => o.key === optionKey);
-    if (!option) return;
-
-    const expiry = computeExpiryDate(option);
-    const prestataFino = expiry ? expiry.toISOString() : 'sempre';
-    await updateCard(card.id, { prestataFino });
-
-    const scadenzaTesto =
-      prestataFino === 'sempre' ? 'senza scadenza' : `fino al ${formatDateIt(prestataFino)}`;
-
-    try {
-      await Share.share({
-        message: `Ti presto la tessera ${card.nome} (${scadenzaTesto}): ${card.codice}`,
-      });
-    } catch {
-      // l'utente ha semplicemente chiuso il foglio di condivisione
+  const handleLendDurationChosen = async (card: Carta, optionKey: string) => {
+    setPendingLend({ card, optionKey });
+    const myName = await getMyName();
+    if (myName) {
+      setTimeout(() => setAskRecipient(true), 300);
+    } else {
+      setTimeout(() => setAskMyName(true), 300);
     }
+  };
+
+  const handleMyNameConfirmed = async (name: string) => {
+    await setMyName(name);
+    setAskMyName(false);
+    setTimeout(() => setAskRecipient(true), 300);
+  };
+
+  const handleRecipientConfirmed = async (recipientName: string) => {
+    setAskRecipient(false);
+    if (!pendingLend) return;
+
+    const { card, optionKey } = pendingLend;
+    const option = DURATION_OPTIONS.find((o) => o.key === optionKey);
+    const myName = (await getMyName()) || '';
+    const expiry = option ? computeExpiryDate(option) : null;
+    const scadenzaIso = expiry ? expiry.toISOString() : null;
+
+    const brandInfo = getBrandInfo(card.nome);
+    const logoFile = brandInfo?.logoFile ?? card.logoFile ?? null;
+    const colore = brandInfo?.color || card.colore || DEFAULT_CARD_COLOR;
+
+    const link = buildLendLink({
+      nome: card.nome,
+      codice: card.codice,
+      logoFile,
+      colore,
+      da: myName,
+      scadenza: scadenzaIso,
+    });
+
+    const nuovoPrestito: Prestito = {
+      destinatario: recipientName,
+      concessoIl: new Date().toISOString(),
+      scadenza: scadenzaIso,
+    };
+    // Se avevi già prestato questa carta alla stessa persona, aggiorna la
+    // riga invece di duplicarla.
+    const prestitiPrecedenti = (card.prestiti || []).filter(
+      (p) => p.destinatario.toLowerCase() !== recipientName.toLowerCase()
+    );
+    await updateCard(card.id, { prestiti: [...prestitiPrecedenti, nuovoPrestito] });
+
+    const scadenzaTesto = scadenzaIso ? `fino al ${formatDateIt(scadenzaIso)}` : 'senza scadenza';
+
+    setPendingLend(null);
+    setTimeout(async () => {
+      try {
+        await Share.share({
+          message: `Ti presto la tessera ${card.nome} (${scadenzaTesto}). Tocca per aggiungerla in FideliCard: ${link}`,
+        });
+      } catch {
+        // l'utente ha semplicemente chiuso il foglio di condivisione
+      }
+    }, 300);
   };
 
   const filteredCards = carte.filter((carta) =>
@@ -218,7 +247,7 @@ export default function CarteScreen() {
     ? DURATION_OPTIONS.map((option) => ({
         key: option.key,
         label: option.label,
-        onPress: () => handleLendDuration(lendCard, option.key),
+        onPress: () => handleLendDurationChosen(lendCard, option.key),
       }))
     : [];
 
@@ -239,6 +268,8 @@ export default function CarteScreen() {
     const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
     const backgroundColor = hasRealLogo ? '#FFFFFF' : brandColor;
 
+    const prestitiAttivi = (item.prestiti || []).length;
+
     return (
       <View style={styles.shadowContainer}>
         <TouchableOpacity
@@ -247,11 +278,16 @@ export default function CarteScreen() {
           onPress={() => handlePress(item.id)}
           onLongPress={() => handleLongPress(item.id)}
         >
-          {item.prestataFino && (
+          {prestitiAttivi > 0 && (
             <View style={styles.lendBadge}>
               <Text style={styles.lendBadgeText}>
-                🤝 {item.prestataFino === 'sempre' ? 'In prestito' : `Fino al ${formatDateIt(item.prestataFino)}`}
+                ⭐ Prestata{prestitiAttivi > 1 ? ` (${prestitiAttivi})` : ''}
               </Text>
+            </View>
+          )}
+          {!prestitiAttivi && item.prestataDa && (
+            <View style={styles.borrowedBadge}>
+              <Text style={styles.borrowedBadgeText}>💛 In prestito</Text>
             </View>
           )}
           <View style={[styles.logo, hasRealLogo && styles.logoWithPadding]}>
@@ -335,6 +371,28 @@ export default function CarteScreen() {
         items={durationActions}
         onClose={() => setLendCardId(null)}
       />
+      <PromptModal
+        visible={askMyName}
+        title="Come ti chiami? Lo vedrà chi riceve la tessera."
+        placeholder="Il tuo nome"
+        confirmLabel="Avanti"
+        onConfirm={handleMyNameConfirmed}
+        onCancel={() => {
+          setAskMyName(false);
+          setPendingLend(null);
+        }}
+      />
+      <PromptModal
+        visible={askRecipient}
+        title="A chi presti questa tessera?"
+        placeholder="Nome del destinatario"
+        confirmLabel="Condividi"
+        onConfirm={handleRecipientConfirmed}
+        onCancel={() => {
+          setAskRecipient(false);
+          setPendingLend(null);
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -417,6 +475,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   lendBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#1E1E1E',
+    textAlign: 'center',
+  },
+  borrowedBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    right: 6,
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 214, 0, 0.95)',
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+  },
+  borrowedBadgeText: {
     fontSize: 10,
     fontWeight: '700',
     color: '#1E1E1E',

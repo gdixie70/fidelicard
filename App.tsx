@@ -11,6 +11,7 @@ import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
 import { initRemoteBrands } from './utils/remoteBrands';
+import LendRequestHandler from './components/LendRequestHandler';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -76,6 +77,7 @@ export default function App() {
 
   return (
     <NavigationContainer theme={MyTheme}>
+      <LendRequestHandler />
       <Stack.Navigator>
         <Stack.Screen
           name="Home"

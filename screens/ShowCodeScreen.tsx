@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Share, Alert } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import * as Clipboard from 'expo-clipboard';
 import Barcode from 'react-native-barcode-svg';
 import { detectBarcodeFormat, BarcodeFormat } from '../utils/barcodeFormat';
-
-type Carta = {
-  id: string;
-  nome: string;
-  codice: string;
-  uso?: number;
-};
+import { formatDateIt } from '../utils/duration';
+import { Carta } from '../utils/types';
 
 type Params = {
   params: {
@@ -25,7 +19,6 @@ export default function ShowCodeScreen() {
   const route = useRoute<RouteProp<Params>>();
   const [card, setCard] = useState<Carta | null>(null);
   const [format, setFormat] = useState<BarcodeFormat>('CODE128');
-  const [copied, setCopied] = useState(false);
   const id = route.params.id;
 
   useEffect(() => {
@@ -51,28 +44,33 @@ export default function ShowCodeScreen() {
     setFormat(detectBarcodeFormat(carte[foundIndex].codice));
   };
 
-  const copyCode = async () => {
-    if (!card) return;
-    await Clipboard.setStringAsync(card.codice);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const shareCode = async () => {
-    if (!card) return;
-    try {
-      await Share.share({
-        message: `${card.nome}: ${card.codice}`,
-      });
-    } catch {
-      Alert.alert('Errore', 'Non sono riuscito ad aprire la condivisione.');
-    }
+  const removePrestito = (destinatario: string) => {
+    Alert.alert(
+      'Togliere dall\'elenco?',
+      `"${destinatario}" verrà tolto dall'elenco di chi ha ricevuto questa tessera in prestito (è solo un promemoria: la sua copia non viene toccata).`,
+      [
+        { text: 'Annulla', style: 'cancel' },
+        {
+          text: 'Togli',
+          style: 'destructive',
+          onPress: async () => {
+            if (!card) return;
+            const nuoviPrestiti = (card.prestiti || []).filter((p) => p.destinatario !== destinatario);
+            const json = await AsyncStorage.getItem('carte');
+            const carte: Carta[] = json ? JSON.parse(json) : [];
+            const next = carte.map((c) => (c.id === card.id ? { ...c, prestiti: nuoviPrestiti } : c));
+            await AsyncStorage.setItem('carte', JSON.stringify(next));
+            setCard({ ...card, prestiti: nuoviPrestiti });
+          },
+        },
+      ]
+    );
   };
 
   if (!card) return null;
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{card.nome}</Text>
       <View style={styles.barcodeContainer}>
         <Barcode
@@ -91,22 +89,33 @@ export default function ShowCodeScreen() {
       </View>
       <Text style={styles.code}>{card.codice}</Text>
 
-      <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.actionButton} onPress={copyCode}>
-          <Text style={styles.actionIcon}>{copied ? '✅' : '📋'}</Text>
-          <Text style={styles.actionText}>{copied ? 'Copiato' : 'Copia codice'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={shareCode}>
-          <Text style={styles.actionIcon}>📤</Text>
-          <Text style={styles.actionText}>Condividi</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      {card.prestataDa && (
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>💛 Prestata da {card.prestataDa}</Text>
+        </View>
+      )}
+
+      {!!card.prestiti?.length && (
+        <View style={styles.lendListBox}>
+          <Text style={styles.lendListTitle}>Prestata a:</Text>
+          {card.prestiti.map((p) => (
+            <View key={p.destinatario} style={styles.lendRow}>
+              <Text style={styles.lendRowText}>
+                ⭐ {p.destinatario} — {p.scadenza ? `fino al ${formatDateIt(p.scadenza)}` : 'senza scadenza'}
+              </Text>
+              <TouchableOpacity onPress={() => removePrestito(p.destinatario)}>
+                <Text style={styles.lendRowRemove}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60, alignItems: 'center', backgroundColor: '#fff' },
+  container: { flexGrow: 1, paddingTop: 60, paddingBottom: 40, alignItems: 'center', backgroundColor: '#fff' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
   barcodeContainer: {
     backgroundColor: '#fff',
@@ -115,25 +124,49 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   code: { marginTop: 20, fontSize: 18, letterSpacing: 1.5 },
-  actionsRow: {
-    flexDirection: 'row',
-    marginTop: 30,
+  infoBox: {
+    marginTop: 24,
+    backgroundColor: '#FFF8E1',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
-  actionButton: {
-    alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    marginHorizontal: 8,
-  },
-  actionIcon: {
-    fontSize: 22,
-    marginBottom: 4,
-  },
-  actionText: {
-    fontSize: 13,
+  infoText: {
+    fontSize: 14,
     fontWeight: '600',
+    color: '#5D4400',
+  },
+  lendListBox: {
+    marginTop: 24,
+    width: '85%',
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    padding: 14,
+  },
+  lendListTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#666',
+    marginBottom: 8,
+  },
+  lendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E0E0E0',
+  },
+  lendRowText: {
+    fontSize: 13,
     color: '#333',
+    flex: 1,
+    marginRight: 8,
+  },
+  lendRowRemove: {
+    fontSize: 15,
+    color: '#B00020',
+    fontWeight: '700',
+    padding: 4,
   },
 });
