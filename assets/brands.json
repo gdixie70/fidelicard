@@ -423,7 +423,7 @@
   {
     "prefix": "8094",
     "brand": "MillionStore",
-    "logoFile": "millionstore.jpg",
+    "logoFile": "millionstore.png",
     "color": "#1A1A1A"
   },
   {
@@ -551,5 +551,40 @@
     "logoFile": "expert.png",
     "color": "#000000",
     "domain": "expert.it"
+  },
+  {
+    "prefix": "8113",
+    "brand": "Basko",
+    "logoFile": "basko.png",
+    "color": "#C41E2A",
+    "domain": "basko.it"
+  },
+  {
+    "prefix": "8114",
+    "brand": "Tigros",
+    "logoFile": "tigros.png",
+    "color": "#FBC02D",
+    "domain": "tigros.it"
+  },
+  {
+    "prefix": "8115",
+    "brand": "Alì",
+    "logoFile": "ali.png",
+    "color": "#EE7203",
+    "domain": "alisupermercati.it"
+  },
+  {
+    "prefix": "8116",
+    "brand": "Arcaplanet",
+    "logoFile": "arcaplanet.png",
+    "color": "#FFC72C",
+    "domain": "arcaplanet.it"
+  },
+  {
+    "prefix": "8117",
+    "brand": "Maxi Zoo",
+    "logoFile": "maxizoo.png",
+    "color": "#E2231A",
+    "domain": "maxizoo.it"
   }
 ]

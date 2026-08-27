@@ -62,7 +62,7 @@ const logoMap: { [key: string]: any } = {
   'maxeco.png': require('../assets/loghi/maxeco.png'),
   'imperial.png': require('../assets/loghi/imperial.png'),
   'cisalfa.png': require('../assets/loghi/cisalfa.png'),
-  'millionstore.jpg': require('../assets/loghi/millionstore.jpg'),
+  'millionstore.png': require('../assets/loghi/millionstore.png'),
   'crai.png': require('../assets/loghi/crai.png'),
   'simplymarket.png': require('../assets/loghi/simplymarket.png'),
   'aldi.png': require('../assets/loghi/aldi.png'),
@@ -81,6 +81,11 @@ const logoMap: { [key: string]: any } = {
   'douglas.png': require('../assets/loghi/douglas.png'),
   'superconti.png': require('../assets/loghi/superconti.png'),
   'expert.png': require('../assets/loghi/expert.png'),
+  'basko.png': require('../assets/loghi/basko.png'),
+  'tigros.png': require('../assets/loghi/tigros.png'),
+  'ali.png': require('../assets/loghi/ali.png'),
+  'arcaplanet.png': require('../assets/loghi/arcaplanet.png'),
+  'maxizoo.png': require('../assets/loghi/maxizoo.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 
