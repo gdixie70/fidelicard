@@ -17,7 +17,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
+import logoMap from '../utils/logoMap';
+import { generateId } from '../utils/id';
+import { DURATION_OPTIONS, computeExpiryDate, formatDateIt } from '../utils/duration';
 import BrandLogo from '../components/BrandLogo';
+import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 
 const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'ean13',
@@ -31,18 +35,65 @@ const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'qr',
 ];
 
+type CartaSalvata = {
+  id: string;
+  nome: string;
+  codice: string;
+  uso?: number;
+  logoFile?: string | null;
+  colore?: string;
+  scadenza?: string | null;
+  prestataFino?: string | null;
+};
+
 export default function AddCardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Aggiungi'>>();
+  const editId = route.params?.editId ?? null;
+
   const [nome, setNome] = useState('');
   const [codice, setCodice] = useState('');
   const [logoFile, setLogoFile] = useState<string | null>(null);
   const [logoUri, setLogoUri] = useState<any | null>(null);
   const [colore, setColore] = useState<string>('#1E1E1E');
   const [suggestions, setSuggestions] = useState<BrandMatch[]>([]);
+  const [scadenza, setScadenza] = useState<string | null>(null);
+  const [scadenzaPickerVisible, setScadenzaPickerVisible] = useState(false);
   // Nome della catena già confermato (da tap su un suggerimento o da match sul codice):
   // finché il testo coincide con questo valore, non ha senso riproporre i suggerimenti.
   const [confirmedBrand, setConfirmedBrand] = useState<string | null>(null);
+
+  useEffect(() => {
+    navigation.setOptions({ title: editId ? 'Modifica Carta' : 'Aggiungi Carta' });
+  }, [editId]);
+
+  // In modalità modifica, precarica i dati della carta esistente.
+  useEffect(() => {
+    if (!editId) return;
+
+    (async () => {
+      const json = await AsyncStorage.getItem('carte');
+      const carte: CartaSalvata[] = json ? JSON.parse(json) : [];
+      const found = carte.find((c) => c.id === editId);
+      if (!found) return;
+
+      setNome(found.nome);
+      setCodice(found.codice);
+      setScadenza(found.scadenza ?? null);
+
+      const info = getBrandInfo(found.nome);
+      if (info) {
+        setLogoFile(info.logoFile);
+        setLogoUri(info.logoUri);
+        setColore(info.color);
+      } else {
+        setLogoFile(found.logoFile ?? null);
+        setLogoUri(found.logoFile ? logoMap[found.logoFile] ?? null : null);
+        setColore(found.colore ?? '#1E1E1E');
+      }
+      setConfirmedBrand(found.nome);
+    })();
+  }, [editId]);
 
   // Codice tornato dalla fotocamera (schermata di scansione)
   useEffect(() => {
@@ -145,23 +196,50 @@ export default function AddCardScreen() {
       return;
     }
 
-    const nuovaCarta = {
-      nome: nome.trim(),
-      codice: codice.trim(),
-      logoFile,
-      colore,
-    };
-
     try {
       const carteSalvate = await AsyncStorage.getItem('carte');
-      const carte = carteSalvate ? JSON.parse(carteSalvate) : [];
-      carte.push(nuovaCarta);
+      const carte: CartaSalvata[] = carteSalvate ? JSON.parse(carteSalvate) : [];
+
+      if (editId) {
+        const index = carte.findIndex((c) => c.id === editId);
+        if (index !== -1) {
+          carte[index] = {
+            ...carte[index],
+            nome: nome.trim(),
+            codice: codice.trim(),
+            logoFile,
+            colore,
+            scadenza,
+          };
+        }
+      } else {
+        carte.push({
+          id: generateId(),
+          nome: nome.trim(),
+          codice: codice.trim(),
+          logoFile,
+          colore,
+          scadenza,
+        });
+      }
+
       await AsyncStorage.setItem('carte', JSON.stringify(carte));
       navigation.goBack();
     } catch (error) {
       console.error('Errore salvataggio:', error);
     }
   };
+
+  const scadenzaActions: ActionSheetItem[] = DURATION_OPTIONS.map((option) => ({
+    key: option.key,
+    label: option.key === 'forever' ? 'Nessuna (non rimuovere mai)' : `Tra ${option.label}`,
+    onPress: () => {
+      const expiry = computeExpiryDate(option);
+      setScadenza(expiry ? expiry.toISOString() : null);
+    },
+  }));
+
+  const scadenzaLabel = scadenza ? `Rimozione automatica il ${formatDateIt(scadenza)}` : 'Nessuna rimozione automatica';
 
   return (
     <KeyboardAvoidingView
@@ -233,9 +311,27 @@ export default function AddCardScreen() {
         </View>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={saveCard}>
-        <Text style={styles.buttonText}>Salva</Text>
+      <TouchableOpacity style={styles.scadenzaRow} onPress={() => setScadenzaPickerVisible(true)}>
+        <Text style={styles.scadenzaIcon}>⏳</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.scadenzaLabel}>{scadenzaLabel}</Text>
+          <Text style={styles.scadenzaHint}>
+            Utile se questa è una tessera avuta in prestito: sparisce da sola dopo la data scelta.
+          </Text>
+        </View>
+        <Text style={styles.scadenzaChevron}>›</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={saveCard}>
+        <Text style={styles.buttonText}>{editId ? 'Salva modifiche' : 'Salva'}</Text>
+      </TouchableOpacity>
+
+      <ActionSheet
+        visible={scadenzaPickerVisible}
+        title="Rimuovi automaticamente"
+        items={scadenzaActions}
+        onClose={() => setScadenzaPickerVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -334,6 +430,33 @@ const styles = StyleSheet.create({
   previewLogo: {
     width: 200,
     height: 130,
+  },
+  scadenzaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2C2C2C',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 20,
+  },
+  scadenzaIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  scadenzaLabel: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  scadenzaHint: {
+    color: '#888',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  scadenzaChevron: {
+    color: '#888',
+    fontSize: 22,
+    marginLeft: 8,
   },
   button: {
     backgroundColor: '#FF9800',

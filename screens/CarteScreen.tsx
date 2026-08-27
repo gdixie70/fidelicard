@@ -12,6 +12,7 @@ import {
   Image,
   Animated as RNAnimated,
   Platform,
+  Share,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -25,27 +26,36 @@ import Reanimated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import * as Clipboard from 'expo-clipboard';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
+import { generateId } from '../utils/id';
+import { DURATION_OPTIONS, computeExpiryDate, formatDateIt, isExpired } from '../utils/duration';
 import BrandLogo from '../components/BrandLogo';
+import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
 type Carta = {
+  id: string;
   nome: string;
   codice: string;
   uso?: number;
   logoFile?: string | null;
   colore?: string;
   domain?: string | null;
+  scadenza?: string | null; // rimozione automatica della carta dopo questa data
+  prestataFino?: string | null; // promemoria: "in prestito fino al..." (solo informativo)
 };
 
 export default function CarteScreen() {
   const [carte, setCarte] = useState<Carta[]>([]);
   const [filtro, setFiltro] = useState('');
+  const [menuCardId, setMenuCardId] = useState<string | null>(null);
+  const [lendCardId, setLendCardId] = useState<string | null>(null);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -73,13 +83,46 @@ export default function CarteScreen() {
 
   const loadCards = async () => {
     const json = await AsyncStorage.getItem('carte');
-    if (json) {
-      const parsed: Carta[] = JSON.parse(json);
-      const sorted = parsed.sort((a, b) => (b.uso || 0) - (a.uso || 0));
-      setCarte(sorted);
-    } else {
+    if (!json) {
       setCarte([]);
+      return;
     }
+
+    const parsed: Carta[] = JSON.parse(json);
+    let changed = false;
+
+    // Le carte già mancanti di un id (salvate prima di questa versione) ne
+    // ricevono uno stabile ora, così le azioni della card operano sempre
+    // sulla carta giusta indipendentemente dall'ordinamento a schermo.
+    const withIds = parsed.map((c) => {
+      if (!c.id) {
+        changed = true;
+        return { ...c, id: generateId() };
+      }
+      return c;
+    });
+
+    // Rimuove automaticamente le carte con una scadenza superata (es. una
+    // tessera ricevuta in prestito con una durata concordata).
+    const active = withIds.filter((c) => !isExpired(c.scadenza));
+    if (active.length !== withIds.length) changed = true;
+
+    // Il promemoria "in prestito fino al..." è solo un'etichetta: una volta
+    // passata la data si toglie da sola, la carta (che resta tua) non si tocca.
+    const cleaned = active.map((c) => {
+      if (c.prestataFino && isExpired(c.prestataFino)) {
+        changed = true;
+        return { ...c, prestataFino: null };
+      }
+      return c;
+    });
+
+    if (changed) {
+      await AsyncStorage.setItem('carte', JSON.stringify(cleaned));
+    }
+
+    const sorted = [...cleaned].sort((a, b) => (b.uso || 0) - (a.uso || 0));
+    setCarte(sorted);
   };
 
   const saveCards = async (cards: Carta[]) => {
@@ -87,30 +130,99 @@ export default function CarteScreen() {
     setCarte(cards);
   };
 
-  const handlePress = (index: number) => {
-    navigation.navigate('MostraCodice', { index });
+  const updateCard = async (id: string, changes: Partial<Carta>) => {
+    const json = await AsyncStorage.getItem('carte');
+    const stored: Carta[] = json ? JSON.parse(json) : [];
+    const next = stored.map((c) => (c.id === id ? { ...c, ...changes } : c));
+    await saveCards(next);
   };
 
-  const handleLongPress = (index: number) => {
-    Alert.alert('Elimina Carta', `Vuoi eliminare "${carte[index].nome}"?`, [
+  const handlePress = (id: string) => {
+    navigation.navigate('MostraCodice', { id });
+  };
+
+  const handleLongPress = (id: string) => {
+    setMenuCardId(id);
+  };
+
+  const handleCopyCode = async (card: Carta) => {
+    await Clipboard.setStringAsync(card.codice);
+    Alert.alert('Copiato', `Codice di "${card.nome}" copiato negli appunti.`);
+  };
+
+  const handleEdit = (card: Carta) => {
+    navigation.navigate('Aggiungi', { editId: card.id });
+  };
+
+  const handleDeleteConfirm = (card: Carta) => {
+    Alert.alert('Elimina Carta', `Vuoi eliminare "${card.nome}"?`, [
       { text: 'Annulla', style: 'cancel' },
       {
         text: 'Elimina',
         style: 'destructive',
         onPress: () => {
-          const nuoveCarte = [...carte];
-          nuoveCarte.splice(index, 1);
+          const nuoveCarte = carte.filter((c) => c.id !== card.id);
           saveCards(nuoveCarte);
         },
       },
     ]);
   };
 
+  const handleLendPress = (card: Carta) => {
+    setLendCardId(card.id);
+  };
+
+  const handleLendDuration = async (card: Carta, optionKey: string) => {
+    const option = DURATION_OPTIONS.find((o) => o.key === optionKey);
+    if (!option) return;
+
+    const expiry = computeExpiryDate(option);
+    const prestataFino = expiry ? expiry.toISOString() : 'sempre';
+    await updateCard(card.id, { prestataFino });
+
+    const scadenzaTesto =
+      prestataFino === 'sempre' ? 'senza scadenza' : `fino al ${formatDateIt(prestataFino)}`;
+
+    try {
+      await Share.share({
+        message: `Ti presto la tessera ${card.nome} (${scadenzaTesto}): ${card.codice}`,
+      });
+    } catch {
+      // l'utente ha semplicemente chiuso il foglio di condivisione
+    }
+  };
+
   const filteredCards = carte.filter((carta) =>
     carta.nome.toLowerCase().includes(filtro.toLowerCase())
   );
 
-  const renderItem = ({ item, index }: { item: Carta; index: number }) => {
+  const menuCard = menuCardId ? carte.find((c) => c.id === menuCardId) ?? null : null;
+  const lendCard = lendCardId ? carte.find((c) => c.id === lendCardId) ?? null : null;
+
+  const cardActions: ActionSheetItem[] = menuCard
+    ? [
+        { key: 'copy', icon: '📋', label: 'Copia codice', onPress: () => handleCopyCode(menuCard) },
+        { key: 'edit', icon: '✏️', label: 'Modifica', onPress: () => handleEdit(menuCard) },
+        { key: 'lend', icon: '🤝', label: 'Presta la tessera', onPress: () => handleLendPress(menuCard) },
+        {
+          key: 'delete',
+          icon: '🗑️',
+          label: 'Elimina',
+          destructive: true,
+          onPress: () => handleDeleteConfirm(menuCard),
+        },
+      ]
+    : [];
+
+  const durationActions: ActionSheetItem[] = lendCard
+    ? DURATION_OPTIONS.map((option) => ({
+        key: option.key,
+        label: option.label,
+        onPress: () => handleLendDuration(lendCard, option.key),
+      }))
+    : [];
+
+  const renderItem = ({ item }: { item: Carta }) => {
     // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
     // dei dati salvati con la carta) così che le carte aggiunte tempo fa
     // beneficino automaticamente di correzioni/aggiunte fatte in seguito a
@@ -132,9 +244,16 @@ export default function CarteScreen() {
         <TouchableOpacity
           style={[styles.card, { backgroundColor }, hasRealLogo && styles.cardWithLogo]}
           activeOpacity={0.85}
-          onPress={() => handlePress(index)}
-          onLongPress={() => handleLongPress(index)}
+          onPress={() => handlePress(item.id)}
+          onLongPress={() => handleLongPress(item.id)}
         >
+          {item.prestataFino && (
+            <View style={styles.lendBadge}>
+              <Text style={styles.lendBadgeText}>
+                🤝 {item.prestataFino === 'sempre' ? 'In prestito' : `Fino al ${formatDateIt(item.prestataFino)}`}
+              </Text>
+            </View>
+          )}
           <View style={[styles.logo, hasRealLogo && styles.logoWithPadding]}>
             <BrandLogo
               brand={item.nome}
@@ -192,7 +311,7 @@ export default function CarteScreen() {
           data={filteredCards}
           key={'2-columns'}
           numColumns={2}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           columnWrapperStyle={{ justifyContent: 'space-between' }}
@@ -203,6 +322,19 @@ export default function CarteScreen() {
       <View style={styles.adPlaceholder}>
         <Text style={styles.adPlaceholderText}>Spazio pubblicitario</Text>
       </View>
+
+      <ActionSheet
+        visible={!!menuCard}
+        title={menuCard?.nome}
+        items={cardActions}
+        onClose={() => setMenuCardId(null)}
+      />
+      <ActionSheet
+        visible={!!lendCard}
+        title="Per quanto tempo?"
+        items={durationActions}
+        onClose={() => setLendCardId(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -271,6 +403,23 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#FF9800',
+    textAlign: 'center',
+  },
+  lendBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    right: 6,
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 152, 0, 0.95)',
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+  },
+  lendBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#1E1E1E',
     textAlign: 'center',
   },
   emptyContainer: {

@@ -14,8 +14,8 @@ import { initRemoteBrands } from './utils/remoteBrands';
 
 export type RootStackParamList = {
   Home: undefined;
-  Aggiungi: { scannedCode?: string } | undefined;
-  MostraCodice: { index: number };
+  Aggiungi: { scannedCode?: string; editId?: string } | undefined;
+  MostraCodice: { id: string };
   ScanCodice: undefined;
 };
 

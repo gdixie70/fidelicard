@@ -7,6 +7,7 @@ import Barcode from 'react-native-barcode-svg';
 import { detectBarcodeFormat, BarcodeFormat } from '../utils/barcodeFormat';
 
 type Carta = {
+  id: string;
   nome: string;
   codice: string;
   uso?: number;
@@ -14,7 +15,7 @@ type Carta = {
 
 type Params = {
   params: {
-    index: number;
+    id: string;
   };
 };
 
@@ -25,7 +26,7 @@ export default function ShowCodeScreen() {
   const [card, setCard] = useState<Carta | null>(null);
   const [format, setFormat] = useState<BarcodeFormat>('CODE128');
   const [copied, setCopied] = useState(false);
-  const index = route.params.index;
+  const id = route.params.id;
 
   useEffect(() => {
     loadCard();
@@ -33,18 +34,21 @@ export default function ShowCodeScreen() {
 
   const loadCard = async () => {
     const json = await AsyncStorage.getItem('carte');
-    if (json) {
-      const carte: Carta[] = JSON.parse(json);
-      const selected = carte[index];
+    if (!json) return;
 
-      // aggiorna contatore uso
-      const uso = selected.uso ? selected.uso + 1 : 1;
-      carte[index] = { ...selected, uso };
-      await AsyncStorage.setItem('carte', JSON.stringify(carte));
+    const carte: Carta[] = JSON.parse(json);
+    const foundIndex = carte.findIndex((c) => c.id === id);
+    if (foundIndex === -1) return;
 
-      setCard(carte[index]);
-      setFormat(detectBarcodeFormat(carte[index].codice));
-    }
+    const selected = carte[foundIndex];
+
+    // aggiorna contatore uso
+    const uso = selected.uso ? selected.uso + 1 : 1;
+    carte[foundIndex] = { ...selected, uso };
+    await AsyncStorage.setItem('carte', JSON.stringify(carte));
+
+    setCard(carte[foundIndex]);
+    setFormat(detectBarcodeFormat(carte[foundIndex].codice));
   };
 
   const copyCode = async () => {
