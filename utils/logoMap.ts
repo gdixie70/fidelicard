@@ -75,6 +75,12 @@ const logoMap: { [key: string]: any } = {
   'vodafone.png': require('../assets/loghi/vodafone.png'),
   'iliad.png': require('../assets/loghi/iliad.png'),
   'sephora.png': require('../assets/loghi/sephora.png'),
+  'trony.png': require('../assets/loghi/trony.png'),
+  'mondoconvenienza.png': require('../assets/loghi/mondoconvenienza.png'),
+  'comet.png': require('../assets/loghi/comet.png'),
+  'douglas.png': require('../assets/loghi/douglas.png'),
+  'superconti.png': require('../assets/loghi/superconti.png'),
+  'expert.png': require('../assets/loghi/expert.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 

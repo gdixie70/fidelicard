@@ -509,5 +509,47 @@
     "logoFile": "sephora.png",
     "color": "#000000",
     "domain": "sephora.it"
+  },
+  {
+    "prefix": "8107",
+    "brand": "Trony",
+    "logoFile": "trony.png",
+    "color": "#1D2B64",
+    "domain": "trony.it"
+  },
+  {
+    "prefix": "8108",
+    "brand": "Mondo Convenienza",
+    "logoFile": "mondoconvenienza.png",
+    "color": "#D2232A",
+    "domain": "mondoconv.it"
+  },
+  {
+    "prefix": "8109",
+    "brand": "Comet",
+    "logoFile": "comet.png",
+    "color": "#F5C623",
+    "domain": "comet.it"
+  },
+  {
+    "prefix": "8110",
+    "brand": "Douglas",
+    "logoFile": "douglas.png",
+    "color": "#000000",
+    "domain": "douglas.it"
+  },
+  {
+    "prefix": "8111",
+    "brand": "Superconti",
+    "logoFile": "superconti.png",
+    "color": "#3B7D2E",
+    "domain": "superconti.eu"
+  },
+  {
+    "prefix": "8112",
+    "brand": "Expert",
+    "logoFile": "expert.png",
+    "color": "#000000",
+    "domain": "expert.it"
   }
 ]
