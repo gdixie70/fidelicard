@@ -1,9 +1,6 @@
-// Mappa dei loghi inclusi nell'app. I loghi delle principali catene di
-// supermercati (esselunga, coop, conad, eurospin, lidl, despar, todis, pam,
-// iper, famila, penny, auchan, unes, carrefour, bennet, md, sigma, sisa,
-// deco) sono loghi ufficiali reali, recuperati da Wikimedia Commons/
-// Wikipedia. decathlon, brico e cisalfa restano placeholder testuali in
-// attesa di un logo reale.
+// Mappa dei loghi inclusi nell'app: tutti loghi ufficiali reali, recuperati
+// da Wikimedia Commons/Wikipedia. Cisalfa Sport non ha un logo reale (nessuna
+// fonte affidabile trovata): mostra il badge colorato automatico.
 const logoMap: { [key: string]: any } = {
   'esselunga.png': require('../assets/loghi/esselunga.png'),
   'coop.png': require('../assets/loghi/coop.png'),
@@ -26,7 +23,6 @@ const logoMap: { [key: string]: any } = {
   'deco.png': require('../assets/loghi/deco.png'),
   'decathlon.png': require('../assets/loghi/decathlon.png'),
   'brico.png': require('../assets/loghi/brico.png'),
-  'cisalfa.png': require('../assets/loghi/cisalfa.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 
