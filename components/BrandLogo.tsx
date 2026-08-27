@@ -6,7 +6,7 @@ import { getRemoteLogoUri } from '../utils/brandLogo';
 type Props = {
   brand: string;
   color: string;
-  domain?: string | null;
+  logoFile?: string | null; // nome file in assets/loghi, per il recupero remoto se non bundlato
   logoSource?: any | null; // già risolto (es. da logoMap o dalla ricerca brand)
   // Contenitore quadrato che ospita sia il badge (View) sia il logo (Image):
   // qui passiamo solo dimensioni/margini, mai proprietà non condivise come `overflow`.
@@ -21,26 +21,27 @@ const initialsFor = (name: string) => {
 
 /**
  * Mostra il logo di un brand con tre livelli di fallback:
- * 1) immagine locale già inclusa nell'app (istantanea, sempre corretta)
- * 2) immagine reale recuperata da un servizio pubblico e messa in cache sul device
+ * 1) immagine locale già inclusa nell'app (istantanea, sempre corretta, offline dal primo avvio)
+ * 2) immagine recuperata dal repository GitHub del progetto e messa in cache sul device
+ *    (per i brand aggiunti dopo l'ultima pubblicazione dell'app, non ancora bundlati)
  * 3) badge colorato generato con le iniziali del brand, se nessuna immagine è disponibile
  */
-export default function BrandLogo({ brand, color, domain, logoSource, style }: Props) {
+export default function BrandLogo({ brand, color, logoFile, logoSource, style }: Props) {
   const localSource = logoSource ?? null;
   const [remoteUri, setRemoteUri] = useState<string | null>(null);
 
   useEffect(() => {
     setRemoteUri(null);
-    if (localSource || !domain) return;
+    if (localSource || !logoFile) return;
 
     let cancelled = false;
-    getRemoteLogoUri(domain).then((uri) => {
+    getRemoteLogoUri(logoFile).then((uri) => {
       if (!cancelled) setRemoteUri(uri);
     });
     return () => {
       cancelled = true;
     };
-  }, [localSource, domain]);
+  }, [localSource, logoFile]);
 
   if (localSource) {
     return <Image source={localSource} style={[styles.image, style] as StyleProp<ImageStyle>} resizeMode="contain" />;

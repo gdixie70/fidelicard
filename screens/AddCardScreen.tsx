@@ -38,7 +38,6 @@ export default function AddCardScreen() {
   const [codice, setCodice] = useState('');
   const [logoFile, setLogoFile] = useState<string | null>(null);
   const [logoUri, setLogoUri] = useState<any | null>(null);
-  const [domain, setDomain] = useState<string | null>(null);
   const [colore, setColore] = useState<string>('#1E1E1E');
   const [suggestions, setSuggestions] = useState<BrandMatch[]>([]);
   // Nome della catena già confermato (da tap su un suggerimento o da match sul codice):
@@ -82,7 +81,6 @@ export default function AddCardScreen() {
   const applyBrand = (info: BrandMatch) => {
     setLogoFile(info.logoFile);
     setLogoUri(info.logoUri);
-    setDomain(info.domain);
     setColore(info.color);
     setConfirmedBrand(info.brand);
     setSuggestions([]);
@@ -91,7 +89,6 @@ export default function AddCardScreen() {
   const resetBrand = () => {
     setLogoFile(null);
     setLogoUri(null);
-    setDomain(null);
     setColore('#1E1E1E');
     setConfirmedBrand(null);
     setSuggestions([]);
@@ -152,7 +149,6 @@ export default function AddCardScreen() {
       nome: nome.trim(),
       codice: codice.trim(),
       logoFile,
-      domain,
       colore,
     };
 
@@ -191,7 +187,7 @@ export default function AddCardScreen() {
               onPress={() => selectSuggestion(match)}
             >
               <View style={[styles.suggestionSwatch, match.logoUri && styles.suggestionSwatchWithLogo]}>
-                <BrandLogo brand={match.brand} color={match.color} logoSource={match.logoUri} domain={match.domain} />
+                <BrandLogo brand={match.brand} color={match.color} logoSource={match.logoUri} logoFile={match.logoFile} />
               </View>
               <Text style={styles.suggestionText}>{match.brand}</Text>
             </TouchableOpacity>
@@ -230,7 +226,7 @@ export default function AddCardScreen() {
       {confirmedBrand && (
         <View style={[styles.preview, { backgroundColor: logoUri ? '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
-            <BrandLogo brand={nome} color={colore} logoSource={logoUri} domain={domain} />
+            <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} />
           </View>
         </View>
       )}

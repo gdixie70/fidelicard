@@ -1,13 +1,25 @@
-import brands from '../assets/brands.json';
+import bundledBrands from '../assets/brands.json';
 import logoMap from './logoMap';
 
-type BrandEntry = {
+export type BrandEntry = {
   prefix: string;
   brand: string;
   logoFile: string;
   color: string;
   domain?: string;
 };
+
+// Elenco brand "vivo": parte da quello incluso nell'app (funziona subito,
+// offline, dalla primissima apertura) e viene sostituito con una versione
+// più aggiornata da utils/remoteBrands.ts quando disponibile, senza bisogno
+// di un aggiornamento dell'app per i brand aggiunti in seguito.
+let brandsData: BrandEntry[] = bundledBrands as BrandEntry[];
+
+export function setBrandsData(data: BrandEntry[]) {
+  if (Array.isArray(data) && data.length > 0) {
+    brandsData = data;
+  }
+}
 
 export type BrandMatch = {
   brand: string;
@@ -52,7 +64,7 @@ export function searchBrands(query: string, limit = 6): BrandMatch[] {
 
   const scored: { item: BrandEntry; score: number }[] = [];
 
-  for (const item of brands as BrandEntry[]) {
+  for (const item of brandsData) {
     const name = normalizeBrandText(item.brand);
     let score = 0;
 

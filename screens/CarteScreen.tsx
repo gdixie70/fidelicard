@@ -27,6 +27,7 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
+import { hasCachedLogo } from '../utils/brandLogo';
 import BrandLogo from '../components/BrandLogo';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
@@ -117,11 +118,13 @@ export default function CarteScreen() {
     const brandInfo = getBrandInfo(item.nome);
     const brandColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
     const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
-    const domain = brandInfo?.domain ?? item.domain ?? null;
+    const logoFile = brandInfo?.logoFile ?? item.logoFile ?? null;
     // Un logo vero ha già i suoi colori: su uno sfondo dello stesso colore del
     // brand sparisce (es. il blu di Carrefour su sfondo blu). Sfondo bianco
     // per i loghi reali, colore del brand solo per il badge con le iniziali.
-    const hasRealLogo = !!logoSource;
+    // Per i loghi non bundlati ma già recuperati in passato (cache su disco)
+    // lo sappiamo subito, senza aspettare il fetch: hasCachedLogo è sincrono.
+    const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
     const backgroundColor = hasRealLogo ? '#FFFFFF' : brandColor;
 
     return (
@@ -137,7 +140,7 @@ export default function CarteScreen() {
               brand={item.nome}
               color={brandColor}
               logoSource={logoSource}
-              domain={domain}
+              logoFile={logoFile}
             />
           </View>
           <View style={styles.nameBadge}>

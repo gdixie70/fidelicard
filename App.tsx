@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
@@ -10,6 +10,7 @@ import AddCardScreen from './screens/AddCardScreen';
 import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
+import { initRemoteBrands } from './utils/remoteBrands';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -66,6 +67,13 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
 }
 
 export default function App() {
+  useEffect(() => {
+    // Aggiorna l'elenco brand da GitHub in background: l'app mostra subito
+    // quello incluso nel pacchetto (o l'ultima copia in cache), senza
+    // aspettare la rete.
+    initRemoteBrands();
+  }, []);
+
   return (
     <NavigationContainer theme={MyTheme}>
       <Stack.Navigator>
