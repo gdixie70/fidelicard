@@ -41,6 +41,12 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "FideliCard accede alla rubrica per farti scegliere a chi presti una tessera."
+        }
       ]
     ],
     "extra": {

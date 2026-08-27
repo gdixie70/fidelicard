@@ -27,6 +27,7 @@ import Reanimated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
+import * as Contacts from 'expo-contacts';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
@@ -56,6 +57,7 @@ export default function CarteScreen() {
   const [pendingLend, setPendingLend] = useState<PendingLend | null>(null);
   const [askMyName, setAskMyName] = useState(false);
   const [askRecipient, setAskRecipient] = useState(false);
+  const [recipientChoiceVisible, setRecipientChoiceVisible] = useState(false);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -160,7 +162,7 @@ export default function CarteScreen() {
     setPendingLend({ card, optionKey });
     const myName = await getMyName();
     if (myName) {
-      setTimeout(() => setAskRecipient(true), 300);
+      setTimeout(() => setRecipientChoiceVisible(true), 300);
     } else {
       setTimeout(() => setAskMyName(true), 300);
     }
@@ -169,7 +171,31 @@ export default function CarteScreen() {
   const handleMyNameConfirmed = async (name: string) => {
     await setMyName(name);
     setAskMyName(false);
-    setTimeout(() => setAskRecipient(true), 300);
+    setTimeout(() => setRecipientChoiceVisible(true), 300);
+  };
+
+  // Sceglie il destinatario dalla rubrica (uguale su iOS e Android). Se
+  // l'utente annulla o nega il permesso, si può comunque scrivere il nome
+  // a mano - il prestito non richiede che il destinatario sia in rubrica.
+  const pickRecipient = async () => {
+    if (Platform.OS === 'android') {
+      const permission = await Contacts.requestPermissionsAsync();
+      if (!permission.granted) {
+        setAskRecipient(true);
+        return;
+      }
+    }
+
+    try {
+      const contact = await Contacts.presentContactPickerAsync();
+      if (contact?.name) {
+        handleRecipientConfirmed(contact.name);
+      }
+      // contact null = l'utente ha annullato il selettore: non forziamo
+      // l'inserimento manuale, può riprovare da "Presta la tessera".
+    } catch {
+      setAskRecipient(true);
+    }
   };
 
   const handleRecipientConfirmed = async (recipientName: string) => {
@@ -250,6 +276,11 @@ export default function CarteScreen() {
         onPress: () => handleLendDurationChosen(lendCard, option.key),
       }))
     : [];
+
+  const recipientChoiceActions: ActionSheetItem[] = [
+    { key: 'contacts', icon: '📇', label: 'Scegli dalla rubrica', onPress: pickRecipient },
+    { key: 'manual', icon: '⌨️', label: 'Scrivi il nome', onPress: () => setAskRecipient(true) },
+  ];
 
   const renderItem = ({ item }: { item: Carta }) => {
     // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
@@ -370,6 +401,12 @@ export default function CarteScreen() {
         title="Per quanto tempo?"
         items={durationActions}
         onClose={() => setLendCardId(null)}
+      />
+      <ActionSheet
+        visible={recipientChoiceVisible}
+        title="A chi presti questa tessera?"
+        items={recipientChoiceActions}
+        onClose={() => setRecipientChoiceVisible(false)}
       />
       <PromptModal
         visible={askMyName}
