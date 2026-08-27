@@ -162,38 +162,42 @@ export default function CarteScreen() {
     setPendingLend({ card, optionKey });
     const myName = await getMyName();
     if (myName) {
-      setTimeout(() => setRecipientChoiceVisible(true), 300);
+      setTimeout(() => setRecipientChoiceVisible(true), 400);
     } else {
-      setTimeout(() => setAskMyName(true), 300);
+      setTimeout(() => setAskMyName(true), 400);
     }
   };
 
   const handleMyNameConfirmed = async (name: string) => {
     await setMyName(name);
     setAskMyName(false);
-    setTimeout(() => setRecipientChoiceVisible(true), 300);
+    setTimeout(() => setRecipientChoiceVisible(true), 400);
   };
 
   // Sceglie il destinatario dalla rubrica (uguale su iOS e Android). Se
   // l'utente annulla o nega il permesso, si può comunque scrivere il nome
   // a mano - il prestito non richiede che il destinatario sia in rubrica.
   const pickRecipient = async () => {
-    if (Platform.OS === 'android') {
-      const permission = await Contacts.requestPermissionsAsync();
-      if (!permission.granted) {
-        setAskRecipient(true);
-        return;
-      }
-    }
-
     try {
+      if (Platform.OS === 'android') {
+        const permission = await Contacts.requestPermissionsAsync();
+        if (!permission.granted) {
+          setAskRecipient(true);
+          return;
+        }
+      }
+
       const contact = await Contacts.presentContactPickerAsync();
       if (contact?.name) {
         handleRecipientConfirmed(contact.name);
       }
       // contact null = l'utente ha annullato il selettore: non forziamo
       // l'inserimento manuale, può riprovare da "Presta la tessera".
-    } catch {
+    } catch (error: any) {
+      Alert.alert(
+        'Rubrica non disponibile',
+        `Non sono riuscito ad aprire la rubrica (${error?.message || 'errore sconosciuto'}). Scrivi pure il nome a mano.`
+      );
       setAskRecipient(true);
     }
   };
@@ -244,7 +248,7 @@ export default function CarteScreen() {
       } catch {
         // l'utente ha semplicemente chiuso il foglio di condivisione
       }
-    }, 300);
+    }, 400);
   };
 
   const filteredCards = carte.filter((carta) =>

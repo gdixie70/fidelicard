@@ -25,8 +25,10 @@ type Props = {
 export default function ActionSheet({ visible, title, items, onClose }: Props) {
   const handlePress = (item: ActionSheetItem) => {
     onClose();
-    // Lascia chiudere la modale prima di eseguire l'azione (es. un altro Alert/Share).
-    setTimeout(item.onPress, 250);
+    // Lascia chiudere del tutto la modale prima di eseguire l'azione, altrimenti
+    // su iOS presentare subito un altro pop-up/selettore nativo sopra a uno che
+    // si sta ancora chiudendo fallisce in silenzio (nessun errore, nessun effetto).
+    setTimeout(item.onPress, 400);
   };
 
   return (
