@@ -1,8 +1,9 @@
 // Mappa dei loghi inclusi nell'app. I loghi delle principali catene di
 // supermercati (esselunga, coop, conad, eurospin, lidl, despar, todis, pam,
-// iper, famila, penny, auchan, unes, carrefour, bennet) sono loghi ufficiali
-// reali, recuperati da Wikimedia Commons/Wikipedia. decathlon, brico e
-// cisalfa restano placeholder testuali in attesa di un logo reale.
+// iper, famila, penny, auchan, unes, carrefour, bennet, md, sigma, sisa,
+// deco) sono loghi ufficiali reali, recuperati da Wikimedia Commons/
+// Wikipedia. decathlon, brico e cisalfa restano placeholder testuali in
+// attesa di un logo reale.
 const logoMap: { [key: string]: any } = {
   'esselunga.png': require('../assets/loghi/esselunga.png'),
   'coop.png': require('../assets/loghi/coop.png'),
@@ -19,6 +20,10 @@ const logoMap: { [key: string]: any } = {
   'unes.png': require('../assets/loghi/unes.png'),
   'carrefour.png': require('../assets/loghi/carrefour.png'),
   'bennet.png': require('../assets/loghi/bennet.png'),
+  'md.png': require('../assets/loghi/md.png'),
+  'sigma.png': require('../assets/loghi/sigma.png'),
+  'sisa.png': require('../assets/loghi/sisa.png'),
+  'deco.png': require('../assets/loghi/deco.png'),
   'decathlon.png': require('../assets/loghi/decathlon.png'),
   'brico.png': require('../assets/loghi/brico.png'),
   'cisalfa.png': require('../assets/loghi/cisalfa.png'),
