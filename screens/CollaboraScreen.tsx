@@ -23,6 +23,7 @@ import { Carta, Prestito } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 import PromptModal from '../components/PromptModal';
+import AdBanner from '../components/AdBanner';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
@@ -266,10 +267,7 @@ export default function CollaboraScreen() {
           </>
         )}
 
-        {/* Spazio riservato per un banner pubblicitario (es. AdMob) */}
-        <View style={styles.adPlaceholder}>
-          <Text style={styles.adPlaceholderText}>Spazio pubblicitario</Text>
-        </View>
+        <AdBanner style={styles.adBanner} />
       </ScrollView>
 
       <ActionSheet
@@ -391,18 +389,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     padding: 4,
   },
-  adPlaceholder: {
-    height: 50,
-    borderRadius: 10,
+  adBanner: {
     marginTop: 20,
-    backgroundColor: '#1C1C1C',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#333',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  adPlaceholderText: {
-    fontSize: 12,
-    color: '#666',
   },
 });

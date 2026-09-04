@@ -23,6 +23,7 @@ import { DURATION_OPTIONS, computeExpiryDate, formatDateIt } from '../utils/dura
 import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
+import AdBanner from '../components/AdBanner';
 
 const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'ean13',
@@ -316,6 +317,8 @@ export default function AddCardScreen() {
         <Text style={styles.buttonText}>{editId ? 'Salva modifiche' : 'Salva'}</Text>
       </TouchableOpacity>
 
+      <AdBanner style={styles.adBanner} />
+
       <ActionSheet
         visible={scadenzaPickerVisible}
         title="Rimuovi automaticamente"
@@ -458,5 +461,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: '#121212',
     fontWeight: '700',
+  },
+  adBanner: {
+    marginTop: 14,
   },
 });

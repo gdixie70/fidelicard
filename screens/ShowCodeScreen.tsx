@@ -7,6 +7,7 @@ import Barcode from 'react-native-barcode-svg';
 import { detectBarcodeFormat, BarcodeFormat } from '../utils/barcodeFormat';
 import { formatDateIt } from '../utils/duration';
 import { Carta } from '../utils/types';
+import AdBanner from '../components/AdBanner';
 
 type Params = {
   params: {
@@ -141,6 +142,8 @@ export default function ShowCodeScreen() {
           ))}
         </View>
       )}
+
+      <AdBanner variant="light" style={styles.adBanner} />
     </ScrollView>
   );
 }
@@ -220,5 +223,9 @@ const styles = StyleSheet.create({
     color: '#B00020',
     fontWeight: '700',
     padding: 4,
+  },
+  adBanner: {
+    marginTop: 24,
+    width: '85%',
   },
 });

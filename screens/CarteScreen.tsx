@@ -34,6 +34,7 @@ import { isExpired } from '../utils/duration';
 import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
+import AdBanner from '../components/AdBanner';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
@@ -254,10 +255,7 @@ export default function CarteScreen() {
         />
       )}
 
-      {/* Spazio riservato per un banner pubblicitario (es. AdMob) */}
-      <View style={styles.adPlaceholder}>
-        <Text style={styles.adPlaceholderText}>Spazio pubblicitario</Text>
-      </View>
+      <AdBanner style={styles.adBanner} />
 
       <ActionSheet
         visible={!!menuCard}
@@ -398,19 +396,8 @@ const styles = StyleSheet.create({
     top: -60,
     right: 0,
   },
-  adPlaceholder: {
-    height: 50,
-    borderRadius: 10,
+  adBanner: {
     marginTop: 8,
     marginBottom: 4,
-    backgroundColor: '#1C1C1C',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#333',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  adPlaceholderText: {
-    fontSize: 12,
-    color: '#666',
   },
 });
