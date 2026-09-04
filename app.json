@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gdixie70.fidelicard"
+      "bundleIdentifier": "com.gdixie70.fidelicard",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.gdixie70.fidelicard",
