@@ -13,6 +13,7 @@ import ScanCodeScreen from './screens/ScanCodeScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
+import googleMobileAds, { isNativeAdsAvailable } from './utils/ads';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -79,6 +80,13 @@ export default function App() {
     // quello incluso nel pacchetto (o l'ultima copia in cache), senza
     // aspettare la rete.
     initRemoteBrands();
+
+    // In Expo Go il modulo nativo degli annunci non esiste: inizializzarlo
+    // manderebbe in crash l'app. Disponibile solo in una dev/production
+    // build (vedi utils/ads.ts).
+    if (isNativeAdsAvailable && googleMobileAds) {
+      googleMobileAds.default().initialize();
+    }
   }, []);
 
   return (
