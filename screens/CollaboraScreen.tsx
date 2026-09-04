@@ -208,7 +208,7 @@ export default function CollaboraScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.scroll}>
         <Text style={styles.intro}>
           Presta le tue tessere a chi ti sta vicino, o tieni traccia di chi ti ha prestato le sue — utile se vi
           dividete i punti di negozi diversi.
@@ -266,9 +266,9 @@ export default function CollaboraScreen() {
             ))}
           </>
         )}
-
-        <AdBanner style={styles.adBanner} />
       </ScrollView>
+
+      <AdBanner style={styles.adBanner} />
 
       <ActionSheet
         visible={!!lendCard}
@@ -307,6 +307,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
+  },
+  scrollFlex: {
+    flex: 1,
   },
   scroll: {
     padding: 16,
@@ -390,6 +393,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   adBanner: {
-    marginTop: 20,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 8,
   },
 });

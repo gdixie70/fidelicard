@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Alert, Share } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
@@ -91,7 +92,8 @@ export default function ShowCodeScreen() {
   if (!card) return null;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <SafeAreaView style={styles.screen} edges={['bottom']}>
+      <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.container}>
       <Text style={styles.title}>{card.nome}</Text>
       <View style={styles.barcodeContainer}>
         <Barcode
@@ -142,14 +144,17 @@ export default function ShowCodeScreen() {
           ))}
         </View>
       )}
+      </ScrollView>
 
       <AdBanner variant="light" style={styles.adBanner} />
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, paddingTop: 60, paddingBottom: 40, alignItems: 'center', backgroundColor: '#fff' },
+  screen: { flex: 1, backgroundColor: '#fff' },
+  scrollFlex: { flex: 1 },
+  container: { flexGrow: 1, paddingTop: 60, paddingBottom: 24, alignItems: 'center' },
   title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
   barcodeContainer: {
     backgroundColor: '#fff',
@@ -225,7 +230,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   adBanner: {
-    marginTop: 24,
+    alignSelf: 'center',
     width: '85%',
+    marginTop: 8,
+    marginBottom: 16,
   },
 });

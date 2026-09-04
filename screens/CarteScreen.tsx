@@ -245,6 +245,7 @@ export default function CarteScreen() {
         </View>
       ) : (
         <FlatList
+          style={styles.listFlex}
           data={filteredCards}
           key={'2-columns'}
           numColumns={2}
@@ -284,6 +285,9 @@ const styles = StyleSheet.create({
     marginTop: -20,
     marginBottom: Platform.OS === 'ios' ? 15 : 15,
     color: '#fff',
+  },
+  listFlex: {
+    flex: 1,
   },
   list: {
     paddingBottom: 20,

@@ -8,8 +8,10 @@ import {
   Image,
   Alert,
   KeyboardAvoidingView,
+  ScrollView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
@@ -237,8 +239,10 @@ export default function AddCardScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <Image source={require('../assets/logo.png')} style={styles.backgroundLogo} />
 
+      <ScrollView style={styles.formScroll} keyboardShouldPersistTaps="handled">
       <TextInput
         style={styles.input}
         placeholder="Nome carta"
@@ -312,6 +316,7 @@ export default function AddCardScreen() {
         </View>
         <Text style={styles.scadenzaChevron}>›</Text>
       </TouchableOpacity>
+      </ScrollView>
 
       <TouchableOpacity style={styles.button} onPress={saveCard}>
         <Text style={styles.buttonText}>{editId ? 'Salva modifiche' : 'Salva'}</Text>
@@ -325,6 +330,7 @@ export default function AddCardScreen() {
         items={scadenzaActions}
         onClose={() => setScadenzaPickerVisible(false)}
       />
+    </SafeAreaView>
     </KeyboardAvoidingView>
   );
 }
@@ -334,6 +340,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     padding: 20,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  formScroll: {
+    flex: 1,
   },
   backgroundLogo: {
     position: 'absolute',
