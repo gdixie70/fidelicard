@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import { RootStackParamList } from '../App';
+
+const FRAME_HEIGHT = 140;
 
 const SCANNED_BARCODE_TYPES = [
   'ean13',
@@ -19,8 +28,30 @@ const SCANNED_BARCODE_TYPES = [
 
 export default function ScanCodeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const isFocused = useIsFocused();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const scanLineY = useSharedValue(0);
+
+  // Lo schermo resta montato nello stack quando si torna indietro da
+  // "Aggiungi": senza questo reset, dopo la prima scansione riuscita
+  // "scanned" restava true per sempre e la fotocamera smetteva di
+  // rispondere a una nuova scansione.
+  useEffect(() => {
+    if (isFocused) setScanned(false);
+  }, [isFocused]);
+
+  useEffect(() => {
+    scanLineY.value = withRepeat(
+      withTiming(FRAME_HEIGHT, { duration: 1400, easing: Easing.linear }),
+      -1,
+      true
+    );
+  }, []);
+
+  const scanLineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: scanLineY.value }],
+  }));
 
   const handleScanned = ({ data }: BarcodeScanningResult) => {
     if (scanned || !data) return;
@@ -54,7 +85,9 @@ export default function ScanCodeScreen() {
         onBarcodeScanned={scanned ? undefined : handleScanned}
       />
       <View style={styles.overlay} pointerEvents="none">
-        <View style={styles.frame} />
+        <View style={styles.frame}>
+          <Animated.View style={[styles.scanLine, scanLineStyle]} />
+        </View>
         <Text style={styles.hint}>Inquadra il codice a barre della tessera</Text>
       </View>
     </View>
@@ -95,10 +128,22 @@ const styles = StyleSheet.create({
   },
   frame: {
     width: '80%',
-    height: 140,
+    height: FRAME_HEIGHT,
     borderRadius: 16,
     borderWidth: 3,
     borderColor: '#FF9800',
+    overflow: 'hidden',
+  },
+  scanLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: '#FF9800',
+    shadowColor: '#FF9800',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
   },
   hint: {
     marginTop: 20,

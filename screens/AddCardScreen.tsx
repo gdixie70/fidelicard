@@ -18,6 +18,7 @@ import { RootStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
+import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
 import logoMap from '../utils/logoMap';
 import { generateId } from '../utils/id';
@@ -26,6 +27,20 @@ import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 import AdBanner from '../components/AdBanner';
+import { reportMissingLogo } from '../utils/missingLogoReport';
+
+const PRESET_COLORS = [
+  '#1E1E1E',
+  '#E53935',
+  '#FF9800',
+  '#FDD835',
+  '#43A047',
+  '#00897B',
+  '#1E88E5',
+  '#5E35B1',
+  '#D81B60',
+  '#6D4C41',
+];
 
 const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'ean13',
@@ -156,27 +171,41 @@ export default function AddCardScreen() {
     });
     if (result.canceled || !result.assets?.[0]) return;
 
+    const uri = result.assets[0].uri;
+
     try {
-      const decoded = await scanFromURLAsync(result.assets[0].uri, DECODABLE_BARCODE_TYPES);
+      const decoded = await scanFromURLAsync(uri, DECODABLE_BARCODE_TYPES);
       if (decoded.length > 0) {
         setCodice(decoded[0].data);
-      } else if (Platform.OS === 'ios') {
-        // Limite di iOS: il riconoscimento da immagine statica di expo-camera
-        // usa l'API Core Image, che su iOS legge solo i QR code (non i codici
-        // a barre "a righe" come EAN13/Code128, i più comuni sulle tessere).
-        Alert.alert(
-          'Solo QR da foto su iPhone',
-          "Su iPhone l'importazione da foto riconosce solo i codici QR: è un limite del sistema operativo, non dell'app. Per i codici a barre usa la fotocamera dal vivo (📷), oppure scrivi il numero a mano: di solito è stampato o mostrato subito sotto al codice."
-        );
-      } else {
-        Alert.alert(
-          'Codice non trovato',
-          "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
-        );
+        return;
       }
     } catch {
-      Alert.alert('Errore', "Non sono riuscito ad analizzare l'immagine selezionata.");
+      // si prova comunque con ML Kit qui sotto prima di arrendersi
     }
+
+    // Limite noto di iOS: l'API nativa di Apple usata sopra (Core Image)
+    // riconosce da una foto statica solo i QR code, non i codici a barre
+    // "a righe" come EAN13/Code128, i più comuni sulle tessere. Come
+    // ripiego, su iOS proviamo con Google ML Kit (modulo nativo separato,
+    // funziona sia su iOS che Android, ma richiede una build vera: in
+    // Expo Go non è disponibile e questo tentativo fallisce in silenzio).
+    if (Platform.OS === 'ios') {
+      try {
+        const barcodes = await MLKitBarcodeScanning.scan(uri);
+        if (barcodes.length > 0) {
+          setCodice(barcodes[0].value);
+          return;
+        }
+      } catch {
+        // modulo nativo non disponibile (es. Expo Go) o nessun barcode
+        // trovato: si passa comunque al messaggio informativo sotto
+      }
+    }
+
+    Alert.alert(
+      'Codice non trovato',
+      "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
+    );
   };
 
   const saveCard = async () => {
@@ -217,7 +246,18 @@ export default function AddCardScreen() {
       }
 
       await AsyncStorage.setItem('carte', JSON.stringify(carte));
-      navigation.goBack();
+
+      // Nessun logo riconosciuto per questo nome: segnala in automatico
+      // (non blocca né rallenta il salvataggio).
+      if (!logoUri) {
+        reportMissingLogo(nome.trim());
+      }
+
+      // Torna sempre alla Home (non un semplice "indietro"): se si arriva
+      // qui dopo una scansione, un goBack lascerebbe in giro schermate
+      // intermedie e la fotocamera pronta per una nuova scansione si
+      // raggiungerebbe solo ripassando da capo dalla Home.
+      navigation.popToTop();
     } catch (error) {
       console.error('Errore salvataggio:', error);
     }
@@ -298,10 +338,32 @@ export default function AddCardScreen() {
         Non hai la tessera con te? Scrivi qui il numero che vedi stampato (o mostrato a schermo) sotto al codice a barre.
       </Text>
 
-      {confirmedBrand && (
+      {nome.trim().length > 0 && (
         <View style={[styles.preview, { backgroundColor: logoUri ? '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
             <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} />
+          </View>
+        </View>
+      )}
+
+      {nome.trim().length > 0 && !logoUri && (
+        <View style={styles.colorPickerBox}>
+          <Text style={styles.colorPickerLabel}>
+            Nessun logo trovato per questo negozio: scegli un colore per la tessera.
+          </Text>
+          <View style={styles.colorRow}>
+            {PRESET_COLORS.map((c) => (
+              <TouchableOpacity
+                key={c}
+                style={[
+                  styles.colorSwatch,
+                  { backgroundColor: c },
+                  colore === c && styles.colorSwatchSelected,
+                ]}
+                onPress={() => setColore(c)}
+                accessibilityLabel={`Colore ${c}`}
+              />
+            ))}
           </View>
         </View>
       )}
@@ -435,6 +497,30 @@ const styles = StyleSheet.create({
   previewLogo: {
     width: 200,
     height: 130,
+  },
+  colorPickerBox: {
+    marginBottom: 20,
+  },
+  colorPickerLabel: {
+    color: '#aaa',
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  colorSwatch: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginRight: 12,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorSwatchSelected: {
+    borderColor: '#fff',
   },
   scadenzaRow: {
     flexDirection: 'row',
