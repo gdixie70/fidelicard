@@ -12,6 +12,7 @@ import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
 import BulkImportScreen from './screens/BulkImportScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
 import googleMobileAds, { isNativeAdsAvailable } from './utils/ads';
@@ -69,6 +70,10 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
           component={CarteScreen}
           options={{
             title: 'FideliCard',
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
+            ),
             headerRight: () => (
               <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
                 <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
@@ -79,7 +84,16 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
         <Tab.Screen
           name="Collabora"
           component={CollaboraScreen}
-          options={{ title: 'Collabora' }}
+          options={{
+            title: 'Collabora',
+            tabBarIcon: ({ color, size, focused }) => (
+              <MaterialCommunityIcons
+                name={focused ? 'handshake' : 'handshake-outline'}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
         />
       </Tab.Navigator>
       <ActionSheet visible={addMenuVisible} items={addActions} onClose={() => setAddMenuVisible(false)} />

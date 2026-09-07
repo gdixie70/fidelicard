@@ -13,14 +13,12 @@ import {
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getBrandInfo } from '../utils/brandSearch';
-import { hasCachedLogo } from '../utils/brandLogo';
-import logoMap from '../utils/logoMap';
 import { loadAllCards, updateCardById } from '../utils/cardStore';
 import { DURATION_OPTIONS, computeExpiryDate, formatDateIt, isExpired } from '../utils/duration';
 import { buildLendLink } from '../utils/lendLink';
 import { getMyName, setMyName } from '../utils/profile';
 import { Carta, Prestito } from '../utils/types';
-import BrandLogo from '../components/BrandLogo';
+import CardTile from '../components/CardTile';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 import PromptModal from '../components/PromptModal';
 import AdBanner from '../components/AdBanner';
@@ -193,20 +191,6 @@ export default function CollaboraScreen() {
   const carteChePresti = carte.filter((c) => (c.prestiti || []).length > 0);
   const carteRicevute = carte.filter((c) => !!c.prestataDa);
 
-  const renderMiniLogo = (item: Carta) => {
-    const brandInfo = getBrandInfo(item.nome);
-    const brandColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
-    const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
-    const logoFile = brandInfo?.logoFile ?? item.logoFile ?? null;
-    const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
-    const boxBackground = hasRealLogo ? brandInfo?.boxColor || '#FFFFFF' : brandColor;
-    return (
-      <View style={[styles.miniLogoBox, { backgroundColor: boxBackground }]}>
-        <BrandLogo brand={item.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} />
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.scroll}>
@@ -221,16 +205,7 @@ export default function CollaboraScreen() {
         ) : (
           <View style={styles.grid}>
             {carteProprie.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.lendTile}
-                onPress={() => handleLendPress(item)}
-              >
-                {renderMiniLogo(item)}
-                <Text style={styles.tileLabel} numberOfLines={1}>
-                  {item.nome}
-                </Text>
-              </TouchableOpacity>
+              <CardTile key={item.id} carta={item} onPress={() => handleLendPress(item)} />
             ))}
           </View>
         )}
@@ -337,26 +312,7 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-  },
-  lendTile: {
-    width: 84,
-    alignItems: 'center',
-    marginRight: 14,
-    marginBottom: 14,
-  },
-  miniLogoBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8,
-    marginBottom: 6,
-  },
-  tileLabel: {
-    fontSize: 11,
-    color: '#ccc',
-    textAlign: 'center',
+    justifyContent: 'space-between',
   },
   listBox: {
     backgroundColor: '#1E1E1E',

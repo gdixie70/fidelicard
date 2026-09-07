@@ -4,10 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   FlatList,
-  Dimensions,
-  Alert,
   TextInput,
   Image,
   Animated as RNAnimated,
@@ -25,25 +22,17 @@ import Reanimated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import * as Clipboard from 'expo-clipboard';
-import logoMap from '../utils/logoMap';
-import { getBrandInfo } from '../utils/brandSearch';
-import { hasCachedLogo } from '../utils/brandLogo';
 import { loadAllCards, saveAllCards } from '../utils/cardStore';
 import { isExpired } from '../utils/duration';
 import { Carta } from '../utils/types';
-import BrandLogo from '../components/BrandLogo';
-import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
+import CardTile from '../components/CardTile';
 import AdBanner from '../components/AdBanner';
-
-const DEFAULT_CARD_COLOR = '#1E1E1E';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
 export default function CarteScreen() {
   const [carte, setCarte] = useState<Carta[]>([]);
   const [filtro, setFiltro] = useState('');
-  const [menuCardId, setMenuCardId] = useState<string | null>(null);
   const isFocused = useIsFocused();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -96,119 +85,29 @@ export default function CarteScreen() {
     setCarte(sorted);
   };
 
-  const saveCards = async (cards: Carta[]) => {
-    await saveAllCards(cards);
-    setCarte(cards);
-  };
-
   const handlePress = (id: string) => {
     navigation.navigate('MostraCodice', { id });
-  };
-
-  const handleLongPress = (id: string) => {
-    setMenuCardId(id);
-  };
-
-  const handleCopyCode = async (card: Carta) => {
-    await Clipboard.setStringAsync(card.codice);
-    Alert.alert('Copiato', `Codice di "${card.nome}" copiato negli appunti.`);
-  };
-
-  const handleEdit = (card: Carta) => {
-    navigation.navigate('Aggiungi', { editId: card.id });
-  };
-
-  const handleDeleteConfirm = (card: Carta) => {
-    Alert.alert('Elimina Carta', `Vuoi eliminare "${card.nome}"?`, [
-      { text: 'Annulla', style: 'cancel' },
-      {
-        text: 'Elimina',
-        style: 'destructive',
-        onPress: () => {
-          const nuoveCarte = carte.filter((c) => c.id !== card.id);
-          saveCards(nuoveCarte);
-        },
-      },
-    ]);
   };
 
   const filteredCards = carte.filter((carta) =>
     carta.nome.toLowerCase().includes(filtro.toLowerCase())
   );
 
-  const menuCard = menuCardId ? carte.find((c) => c.id === menuCardId) ?? null : null;
-
-  const cardActions: ActionSheetItem[] = menuCard
-    ? [
-        { key: 'copy', icon: '📋', label: 'Copia codice', onPress: () => handleCopyCode(menuCard) },
-        { key: 'edit', icon: '✏️', label: 'Modifica', onPress: () => handleEdit(menuCard) },
-        {
-          key: 'delete',
-          icon: '🗑️',
-          label: 'Elimina',
-          destructive: true,
-          onPress: () => handleDeleteConfirm(menuCard),
-        },
-      ]
-    : [];
-
   const renderItem = ({ item }: { item: Carta }) => {
-    // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
-    // dei dati salvati con la carta) così che le carte aggiunte tempo fa
-    // beneficino automaticamente di correzioni/aggiunte fatte in seguito a
-    // brands.json (colori, loghi, domini), senza dover ri-aggiungere la carta.
-    const brandInfo = getBrandInfo(item.nome);
-    const brandColor = brandInfo?.color || item.colore || DEFAULT_CARD_COLOR;
-    const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
-    const logoFile = brandInfo?.logoFile ?? item.logoFile ?? null;
-    // Un logo vero ha già i suoi colori: su uno sfondo dello stesso colore del
-    // brand sparisce (es. il blu di Carrefour su sfondo blu). Sfondo bianco
-    // per i loghi reali, colore del brand solo per il badge con le iniziali.
-    // Per i loghi non bundlati ma già recuperati in passato (cache su disco)
-    // lo sappiamo subito, senza aspettare il fetch: hasCachedLogo è sincrono.
-    const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
-    // Alcuni loghi hanno uno sfondo pieno cucito dentro l'immagine (es. un
-    // emblema come IKEA, o testo bianco su sfondo colorato come PAYBACK):
-    // per quelli la scheda usa lo stesso colore, altrimenti il logo sembra
-    // un adesivo scollato sopra un rettangolo bianco più grande.
-    const backgroundColor = hasRealLogo ? brandInfo?.boxColor || '#FFFFFF' : brandColor;
-
     const prestitiAttivi = (item.prestiti || []).length;
-
-    return (
-      <View style={styles.shadowContainer}>
-        <TouchableOpacity
-          style={[styles.card, { backgroundColor }, hasRealLogo && styles.cardWithLogo]}
-          activeOpacity={0.85}
-          onPress={() => handlePress(item.id)}
-          onLongPress={() => handleLongPress(item.id)}
-        >
-          {prestitiAttivi > 0 && (
-            <View style={styles.lendBadge}>
-              <Text style={styles.lendBadgeText}>
-                ⭐ Prestata{prestitiAttivi > 1 ? ` (${prestitiAttivi})` : ''}
-              </Text>
-            </View>
-          )}
-          {!prestitiAttivi && item.prestataDa && (
-            <View style={styles.borrowedBadge}>
-              <Text style={styles.borrowedBadgeText}>💛 In prestito</Text>
-            </View>
-          )}
-          <View style={[styles.logo, hasRealLogo && styles.logoWithPadding]}>
-            <BrandLogo
-              brand={item.nome}
-              color={brandColor}
-              logoSource={logoSource}
-              logoFile={logoFile}
-            />
-          </View>
-          <View style={styles.nameBadge}>
-            <Text style={styles.nameText}>{item.nome}</Text>
-          </View>
-        </TouchableOpacity>
+    const badge = prestitiAttivi > 0 ? (
+      <View style={styles.lendBadge}>
+        <Text style={styles.lendBadgeText}>
+          ⭐ Prestata{prestitiAttivi > 1 ? ` (${prestitiAttivi})` : ''}
+        </Text>
       </View>
-    );
+    ) : item.prestataDa ? (
+      <View style={styles.borrowedBadge}>
+        <Text style={styles.borrowedBadgeText}>💛 In prestito</Text>
+      </View>
+    ) : null;
+
+    return <CardTile carta={item} onPress={() => handlePress(item.id)} badge={badge} />;
   };
 
   return (
@@ -261,19 +160,9 @@ export default function CarteScreen() {
       )}
 
       <AdBanner style={styles.adBanner} />
-
-      <ActionSheet
-        visible={!!menuCard}
-        title={menuCard?.nome}
-        items={cardActions}
-        onClose={() => setMenuCardId(null)}
-      />
     </SafeAreaView>
   );
 }
-
-const CARD_WIDTH = Dimensions.get('window').width / 2 - 20;
-const CARD_HEIGHT = CARD_WIDTH / 1.586;
 
 const styles = StyleSheet.create({
   container: {
@@ -295,51 +184,6 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingBottom: 20,
-  },
-  shadowContainer: {
-    borderRadius: 15,
-    marginBottom: 15,
-    backgroundColor: 'transparent',
-    shadowColor: '#FDD835',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  card: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    padding: 10,
-  },
-  cardWithLogo: {
-    borderWidth: 1,
-    borderColor: '#E4E4E4',
-  },
-  logo: {
-    width: '100%',
-    height: '70%',
-    alignSelf: 'center',
-  },
-  logoWithPadding: {
-    width: '82%',
-    height: '58%',
-  },
-  nameBadge: {
-    backgroundColor: 'rgba(10, 10, 10, 0.77)',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    marginTop: 8,
-  },
-  nameText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#FF9800',
-    textAlign: 'center',
   },
   lendBadge: {
     position: 'absolute',
