@@ -12,7 +12,7 @@ import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
 import BulkImportScreen from './screens/BulkImportScreen';
 import AboutScreen from './screens/AboutScreen';
-import { TouchableOpacity, Text, View, Platform } from 'react-native';
+import { TouchableOpacity, Text, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
@@ -76,15 +76,15 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
             tabBarIcon: ({ color, size, focused }) => (
               <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
             ),
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.navigate('Info')} style={{ marginLeft: 15 }}>
+                <Ionicons name="help-circle-outline" size={26} color="#FF9800" />
+              </TouchableOpacity>
+            ),
             headerRight: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('Info')} style={{ marginRight: 15 }}>
-                  <Ionicons name="help-circle-outline" size={26} color="#FF9800" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
-                  <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
+                <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
+              </TouchableOpacity>
             ),
           }}
         />
