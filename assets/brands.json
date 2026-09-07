@@ -635,5 +635,151 @@
     "logoFile": "conte.png",
     "color": "#BEDC2D",
     "domain": "contescarpemoda.it"
+  },
+  {
+    "prefix": "8125",
+    "brand": "GameStop",
+    "logoFile": "gamestop.png",
+    "color": "#EE2A28",
+    "domain": "gamestop.it"
+  },
+  {
+    "prefix": "8126",
+    "brand": "Giunti al Punto",
+    "logoFile": "giunti_al_punto.png",
+    "color": "#20325E",
+    "domain": "giuntialpunto.it"
+  },
+  {
+    "prefix": "8127",
+    "brand": "Jean Louis David",
+    "logoFile": "jean_louis_david.png",
+    "color": "#000000",
+    "domain": "jeanlouisdavid.it"
+  },
+  {
+    "prefix": "8128",
+    "brand": "La Feltrinelli",
+    "logoFile": "la_feltrinelli.png",
+    "color": "#E30613",
+    "domain": "lafeltrinelli.it"
+  },
+  {
+    "prefix": "8129",
+    "brand": "La Piadineria",
+    "logoFile": "la_piadineria.png",
+    "color": "#A6192E",
+    "domain": "lapiadineria.com"
+  },
+  {
+    "prefix": "8130",
+    "brand": "PittaRosso",
+    "logoFile": "pittarosso.png",
+    "color": "#D6144A",
+    "domain": "pittarosso.com"
+  },
+  {
+    "prefix": "8131",
+    "brand": "Prink",
+    "logoFile": "prink.png",
+    "color": "#E4312B",
+    "domain": "prink.it"
+  },
+  {
+    "prefix": "8132",
+    "brand": "Prix",
+    "logoFile": "prix.png",
+    "color": "#6CC24A",
+    "domain": "prix.it"
+  },
+  {
+    "prefix": "8133",
+    "brand": "RisparmioCasa",
+    "logoFile": "risparmio_casa.png",
+    "color": "#0072BC",
+    "domain": "risparmiocasa.com"
+  },
+  {
+    "prefix": "8134",
+    "brand": "Sapore di Mare",
+    "logoFile": "sapore_di_mare.png",
+    "color": "#153F71",
+    "domain": "saporedimare.it"
+  },
+  {
+    "prefix": "8135",
+    "brand": "Scalo Milano Outlet & More",
+    "logoFile": "scalo_milano.png",
+    "color": "#FAE330",
+    "domain": "scalomilano.it"
+  },
+  {
+    "prefix": "8136",
+    "brand": "Seconda Strada",
+    "logoFile": "seconda_strada.png",
+    "color": "#144361",
+    "domain": "secondastrada.com"
+  },
+  {
+    "prefix": "8137",
+    "brand": "Steflor",
+    "logoFile": "steflor.png",
+    "color": "#1C8A44",
+    "domain": "steflor.it"
+  },
+  {
+    "prefix": "8138",
+    "brand": "Yves Rocher",
+    "logoFile": "yves_rocher.png",
+    "color": "#008061",
+    "domain": "yves-rocher.it"
+  },
+  {
+    "prefix": "8139",
+    "brand": "Iper d'Oriente",
+    "logoFile": "iper_doriente.png",
+    "color": "#E23B23",
+    "domain": "iperdoriente.it"
+  },
+  {
+    "prefix": "8140",
+    "brand": "Metro",
+    "logoFile": "metro.png",
+    "color": "#014171",
+    "domain": "metro.it"
+  },
+  {
+    "prefix": "8141",
+    "brand": "Moto Abbigliamento.it",
+    "logoFile": "moto_abbigliamento.png",
+    "color": "#E4111A",
+    "domain": "motoabbigliamento.it"
+  },
+  {
+    "prefix": "8142",
+    "brand": "Lotteria degli Scontrini",
+    "logoFile": "lotteria_scontrini.png",
+    "color": "#F2B705"
+  },
+  {
+    "prefix": "8143",
+    "brand": "PAYBACK",
+    "logoFile": "payback.png",
+    "color": "#003EB0",
+    "domain": "payback.it"
+  },
+  {
+    "prefix": "8144",
+    "brand": "Flying Blue",
+    "logoFile": "flying_blue.png",
+    "color": "#0032A0",
+    "domain": "flyingblue.com"
+  },
+  {
+    "prefix": "8145",
+    "brand": "Buy&Benefit",
+    "logoFile": "buy_benefit.png",
+    "color": "#E8632E",
+    "domain": "buyandbenefit.com"
   }
 ]
