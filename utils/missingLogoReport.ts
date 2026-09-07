@@ -5,21 +5,13 @@
  * brands.json, arriverà agli utenti automaticamente tramite
  * utils/remoteBrands.ts, senza bisogno di un aggiornamento dell'app.
  *
- * Usa una Google Form come endpoint: gratuito, senza manutenzione, nessun
- * backend da tenere in piedi (a differenza del vecchio Supabase).
- *
- * Per attivarlo:
- * 1. Crea una Google Form con UNA domanda a risposta breve (es. "Negozio
- *    senza logo").
- * 2. Nel menu (⋮) della domanda scegli "Ottieni link precompilato",
- *    scrivi una risposta di prova, genera il link e copialo: contiene sia
- *    l'ID della form sia l'ID della domanda, es.
- *    https://docs.google.com/forms/d/e/ABCDEF.../viewform?entry.123456789=prova
- * 3. Sostituisci qui sotto FORM_ID (la parte tra /d/e/ e /viewform) e
- *    NAME_FIELD_ENTRY (es. "entry.123456789").
+ * Usa una Google Form ("Menu Senza Logo") come endpoint: gratuito, senza
+ * manutenzione, nessun backend da tenere in piedi (a differenza del
+ * vecchio Supabase). Le risposte arrivano nel foglio Google collegato alla
+ * form.
  */
-const FORM_ID = null as string | null; // es. '1FAIpQLSf...'
-const NAME_FIELD_ENTRY = null as string | null; // es. 'entry.123456789'
+const FORM_ID: string | null = '1FAIpQLSfF-BWzYEwTmulSxve3tGI13kKQVrapDc9n1BHkZPbsxgbuSA';
+const NAME_FIELD_ENTRY: string | null = 'entry.868566266';
 
 export async function reportMissingLogo(nome: string): Promise<void> {
   if (!FORM_ID || !NAME_FIELD_ENTRY || !nome.trim()) return;

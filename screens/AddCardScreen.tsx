@@ -17,6 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import * as Sharing from 'expo-sharing';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
 import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
@@ -70,6 +71,7 @@ export default function AddCardScreen() {
   // Nome della catena già confermato (da tap su un suggerimento o da match sul codice):
   // finché il testo coincide con questo valore, non ha senso riproporre i suggerimenti.
   const [confirmedBrand, setConfirmedBrand] = useState<string | null>(null);
+  const [photoSourceVisible, setPhotoSourceVisible] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({ title: editId ? 'Modifica Carta' : 'Aggiungi Carta' });
@@ -206,6 +208,43 @@ export default function AddCardScreen() {
       'Codice non trovato',
       "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
     );
+  };
+
+  // Manda una foto della tessera/del logo allo sviluppatore tramite il
+  // foglio di condivisione nativo (email, WhatsApp, ecc.), per aiutarlo a
+  // trovare/creare il logo quando il riconoscimento automatico non basta.
+  const sendLogoPhoto = async (useCamera: boolean) => {
+    const permission = useCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(
+        'Permesso negato',
+        useCamera
+          ? "Consenti l'accesso alla fotocamera per scattare la foto."
+          : "Consenti l'accesso alle foto per sceglierne una."
+      );
+      return;
+    }
+
+    const result = useCamera
+      ? await ImagePicker.launchCameraAsync({ quality: 0.8 })
+      : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const available = await Sharing.isAvailableAsync();
+    if (!available) {
+      Alert.alert('Condivisione non disponibile', 'Il tuo dispositivo non supporta la condivisione di file.');
+      return;
+    }
+
+    try {
+      await Sharing.shareAsync(result.assets[0].uri, {
+        dialogTitle: `Logo mancante: ${nome.trim()}`,
+      });
+    } catch {
+      // l'utente ha semplicemente chiuso il foglio di condivisione
+    }
   };
 
   const saveCard = async () => {
@@ -365,6 +404,9 @@ export default function AddCardScreen() {
               />
             ))}
           </View>
+          <TouchableOpacity style={styles.sendPhotoButton} onPress={() => setPhotoSourceVisible(true)}>
+            <Text style={styles.sendPhotoButtonText}>📷 Invia una foto del logo/tessera</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -391,6 +433,15 @@ export default function AddCardScreen() {
         title="Rimuovi automaticamente"
         items={scadenzaActions}
         onClose={() => setScadenzaPickerVisible(false)}
+      />
+      <ActionSheet
+        visible={photoSourceVisible}
+        title="Foto del logo/tessera"
+        items={[
+          { key: 'camera', icon: '📷', label: 'Scatta una foto', onPress: () => sendLogoPhoto(true) },
+          { key: 'library', icon: '🖼️', label: 'Scegli dalla libreria', onPress: () => sendLogoPhoto(false) },
+        ]}
+        onClose={() => setPhotoSourceVisible(false)}
       />
     </SafeAreaView>
     </KeyboardAvoidingView>
@@ -521,6 +572,19 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderColor: '#fff',
+  },
+  sendPhotoButton: {
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    backgroundColor: '#2C2C2C',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  sendPhotoButtonText: {
+    color: '#FF9800',
+    fontSize: 13,
+    fontWeight: '600',
   },
   scadenzaRow: {
     flexDirection: 'row',
