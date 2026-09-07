@@ -70,7 +70,8 @@
     "brand": "Penny Market",
     "logoFile": "penny.png",
     "color": "#DA291C",
-    "domain": "penny.it"
+    "domain": "penny.it",
+    "boxColor": "#CD1414"
   },
   {
     "prefix": "8011",
@@ -150,7 +151,8 @@
     "prefix": "8052",
     "brand": "Brico Io",
     "logoFile": "brico.png",
-    "color": "#d6d9da"
+    "color": "#d6d9da",
+    "boxColor": "#000000"
   },
   {
     "prefix": "8053",
@@ -269,7 +271,8 @@
     "brand": "United Colors of Benetton",
     "logoFile": "benetton.png",
     "color": "#FFFFFF",
-    "domain": "benetton.com"
+    "domain": "benetton.com",
+    "boxColor": "#008860"
   },
   {
     "prefix": "8070",
@@ -442,7 +445,8 @@
     "brand": "Crai",
     "logoFile": "crai.png",
     "color": "#0A6E3C",
-    "domain": "crai.it"
+    "domain": "crai.it",
+    "boxColor": "#006F44"
   },
   {
     "prefix": "8096",
@@ -471,7 +475,8 @@
     "brand": "Unieuro",
     "logoFile": "unieuro.png",
     "color": "#0F1A46",
-    "domain": "unieuro.it"
+    "domain": "unieuro.it",
+    "boxColor": "#002D62"
   },
   {
     "prefix": "8100",
@@ -923,7 +928,8 @@
     "brand": "Autogrill",
     "logoFile": "autogrill.png",
     "color": "#ED1C2E",
-    "domain": "autogrill.it"
+    "domain": "autogrill.it",
+    "boxColor": "#ED1C2E"
   },
   {
     "prefix": "8164",
