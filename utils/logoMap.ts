@@ -86,6 +86,12 @@ const logoMap: { [key: string]: any } = {
   'ali.png': require('../assets/loghi/ali.png'),
   'arcaplanet.png': require('../assets/loghi/arcaplanet.png'),
   'maxizoo.png': require('../assets/loghi/maxizoo.png'),
+  'hm.png': require('../assets/loghi/hm.png'),
+  'calzedonia.png': require('../assets/loghi/calzedonia.png'),
+  'intimissimi.png': require('../assets/loghi/intimissimi.png'),
+  'original_marines.png': require('../assets/loghi/original_marines.png'),
+  'coin.png': require('../assets/loghi/coin.png'),
+  'goldenpoint.png': require('../assets/loghi/goldenpoint.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 

@@ -586,5 +586,47 @@
     "logoFile": "maxizoo.png",
     "color": "#E2231A",
     "domain": "maxizoo.it"
+  },
+  {
+    "prefix": "8118",
+    "brand": "H&M",
+    "logoFile": "hm.png",
+    "color": "#CC071E",
+    "domain": "hm.com"
+  },
+  {
+    "prefix": "8119",
+    "brand": "Calzedonia",
+    "logoFile": "calzedonia.png",
+    "color": "#000000",
+    "domain": "calzedonia.com"
+  },
+  {
+    "prefix": "8120",
+    "brand": "Intimissimi",
+    "logoFile": "intimissimi.png",
+    "color": "#000000",
+    "domain": "intimissimi.com"
+  },
+  {
+    "prefix": "8121",
+    "brand": "Original Marines",
+    "logoFile": "original_marines.png",
+    "color": "#2E3192",
+    "domain": "originalmarines.com"
+  },
+  {
+    "prefix": "8122",
+    "brand": "Coin",
+    "logoFile": "coin.png",
+    "color": "#000000",
+    "domain": "coin.it"
+  },
+  {
+    "prefix": "8123",
+    "brand": "Golden Point",
+    "logoFile": "goldenpoint.png",
+    "color": "#8C7048",
+    "domain": "goldenpoint.com"
   }
 ]
