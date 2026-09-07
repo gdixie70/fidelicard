@@ -20,6 +20,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
 import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
+import MLKitTextRecognition from '@react-native-ml-kit/text-recognition';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
 import logoMap from '../utils/logoMap';
 import { generateId } from '../utils/id';
@@ -174,12 +175,13 @@ export default function AddCardScreen() {
     if (result.canceled || !result.assets?.[0]) return;
 
     const uri = result.assets[0].uri;
+    let codiceTrovato = false;
 
     try {
       const decoded = await scanFromURLAsync(uri, DECODABLE_BARCODE_TYPES);
       if (decoded.length > 0) {
         setCodice(decoded[0].data);
-        return;
+        codiceTrovato = true;
       }
     } catch {
       // si prova comunque con ML Kit qui sotto prima di arrendersi
@@ -191,12 +193,12 @@ export default function AddCardScreen() {
     // ripiego, su iOS proviamo con Google ML Kit (modulo nativo separato,
     // funziona sia su iOS che Android, ma richiede una build vera: in
     // Expo Go non è disponibile e questo tentativo fallisce in silenzio).
-    if (Platform.OS === 'ios') {
+    if (!codiceTrovato && Platform.OS === 'ios') {
       try {
         const barcodes = await MLKitBarcodeScanning.scan(uri);
         if (barcodes.length > 0) {
           setCodice(barcodes[0].value);
-          return;
+          codiceTrovato = true;
         }
       } catch {
         // modulo nativo non disponibile (es. Expo Go) o nessun barcode
@@ -204,10 +206,36 @@ export default function AddCardScreen() {
       }
     }
 
-    Alert.alert(
-      'Codice non trovato',
-      "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
-    );
+    // Prova anche a leggere il nome del negozio dal testo nella foto (utile
+    // importando uno screenshot da un'altra app tipo Klarna/Stocard): tra
+    // tutte le righe di testo riconosciute, cerca quella che combacia con
+    // un brand conosciuto invece di indovinare "quella più in alto" - così
+    // ignora scritte come "Paga in negozio" che non sono il nome tessera.
+    // Come ML Kit sopra, richiede una build vera (fallisce in silenzio in
+    // Expo Go) e non blocca comunque il resto del flusso se fallisce.
+    if (!nome.trim()) {
+      try {
+        const { blocks } = await MLKitTextRecognition.recognize(uri);
+        const candidates = blocks.flatMap((block) => block.lines.map((line) => line.text));
+        for (const candidate of candidates) {
+          const match = getBrandInfo(candidate);
+          if (match) {
+            setNome(match.brand);
+            applyBrand(match);
+            break;
+          }
+        }
+      } catch {
+        // nessun problema: l'utente scrive comunque il nome a mano
+      }
+    }
+
+    if (!codiceTrovato) {
+      Alert.alert(
+        'Codice non trovato',
+        "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
+      );
+    }
   };
 
   // Manda una foto della tessera/del logo allo sviluppatore tramite il
