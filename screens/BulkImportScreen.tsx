@@ -32,6 +32,7 @@ type DraftCard = {
   logoFile: string | null;
   logoUri: any | null;
   colore: string;
+  boxColor?: string;
 };
 
 export default function BulkImportScreen() {
@@ -68,6 +69,7 @@ export default function BulkImportScreen() {
         logoFile: brand?.logoFile ?? null,
         logoUri: brand?.logoUri ?? null,
         colore: brand?.color ?? DEFAULT_CARD_COLOR,
+        boxColor: brand?.boxColor,
       });
       setProgresso((p) => ({ ...p, fatte: p.fatte + 1 }));
     }
@@ -82,8 +84,8 @@ export default function BulkImportScreen() {
         if (item.key !== key) return item;
         const match = getBrandInfo(nome) ?? findBrandInText(nome);
         return match
-          ? { ...item, nome, logoFile: match.logoFile, logoUri: match.logoUri, colore: match.color }
-          : { ...item, nome, logoFile: null, logoUri: null, colore: item.colore };
+          ? { ...item, nome, logoFile: match.logoFile, logoUri: match.logoUri, colore: match.color, boxColor: match.boxColor }
+          : { ...item, nome, logoFile: null, logoUri: null, colore: item.colore, boxColor: undefined };
       })
     );
   };
@@ -162,9 +164,10 @@ export default function BulkImportScreen() {
         </Text>
         {draft.map((item) => {
           const hasRealLogo = !!item.logoUri;
+          const boxBackground = hasRealLogo ? item.boxColor || '#FFFFFF' : item.colore;
           return (
             <View key={item.key} style={styles.row}>
-              <View style={[styles.rowLogo, { backgroundColor: hasRealLogo ? '#FFFFFF' : item.colore }]}>
+              <View style={[styles.rowLogo, { backgroundColor: boxBackground }]}>
                 <BrandLogo brand={item.nome || '?'} color={item.colore} logoSource={item.logoUri} logoFile={item.logoFile} />
               </View>
               <View style={styles.rowFields}>

@@ -7,6 +7,13 @@ export type BrandEntry = {
   logoFile: string;
   color: string;
   domain?: string;
+  // Alcuni loghi hanno uno sfondo pieno "cucito dentro" l'immagine (es. un
+  // logo a emblema come IKEA o Lidl, o un testo bianco su sfondo colorato
+  // come PAYBACK): per quelli la scheda deve usare questo colore invece del
+  // bianco standard, altrimenti il logo sembra un adesivo scollato sopra un
+  // rettangolo bianco più grande. Assente per i loghi normali a sfondo
+  // trasparente, che stanno bene su bianco.
+  boxColor?: string;
 };
 
 // Elenco brand "vivo": parte da quello incluso nell'app (funziona subito,
@@ -27,6 +34,7 @@ export type BrandMatch = {
   logoFile: string;
   logoUri: any | null;
   domain: string | null;
+  boxColor?: string;
   score: number;
 };
 
@@ -46,6 +54,7 @@ const toMatch = (item: BrandEntry, score: number): BrandMatch => ({
   logoFile: item.logoFile,
   logoUri: logoMap[item.logoFile] || null,
   domain: item.domain || null,
+  boxColor: item.boxColor,
   score,
 });
 

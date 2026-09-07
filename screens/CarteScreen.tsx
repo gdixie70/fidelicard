@@ -167,7 +167,11 @@ export default function CarteScreen() {
     // Per i loghi non bundlati ma già recuperati in passato (cache su disco)
     // lo sappiamo subito, senza aspettare il fetch: hasCachedLogo è sincrono.
     const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
-    const backgroundColor = hasRealLogo ? '#FFFFFF' : brandColor;
+    // Alcuni loghi hanno uno sfondo pieno cucito dentro l'immagine (es. un
+    // emblema come IKEA, o testo bianco su sfondo colorato come PAYBACK):
+    // per quelli la scheda usa lo stesso colore, altrimenti il logo sembra
+    // un adesivo scollato sopra un rettangolo bianco più grande.
+    const backgroundColor = hasRealLogo ? brandInfo?.boxColor || '#FFFFFF' : brandColor;
 
     const prestitiAttivi = (item.prestiti || []).length;
 

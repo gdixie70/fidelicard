@@ -199,8 +199,9 @@ export default function CollaboraScreen() {
     const logoSource = brandInfo?.logoUri ?? (item.logoFile ? logoMap[item.logoFile] : null);
     const logoFile = brandInfo?.logoFile ?? item.logoFile ?? null;
     const hasRealLogo = !!logoSource || hasCachedLogo(logoFile);
+    const boxBackground = hasRealLogo ? brandInfo?.boxColor || '#FFFFFF' : brandColor;
     return (
-      <View style={[styles.miniLogoBox, hasRealLogo ? styles.miniLogoBoxWhite : { backgroundColor: brandColor }]}>
+      <View style={[styles.miniLogoBox, { backgroundColor: boxBackground }]}>
         <BrandLogo brand={item.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} />
       </View>
     );
@@ -351,11 +352,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 8,
     marginBottom: 6,
-  },
-  miniLogoBoxWhite: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#333',
   },
   tileLabel: {
     fontSize: 11,

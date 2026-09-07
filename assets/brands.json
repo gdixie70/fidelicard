@@ -32,7 +32,8 @@
     "brand": "IKEA",
     "logoFile": "ikea.png",
     "color": "#0058ab",
-    "domain": "ikea.com"
+    "domain": "ikea.com",
+    "boxColor": "#0058AB"
   },
   {
     "prefix": "8015",
@@ -46,20 +47,23 @@
     "brand": "Eurospin",
     "logoFile": "eurospin.png",
     "color": "#0069b1",
-    "domain": "eurospin.it"
+    "domain": "eurospin.it",
+    "boxColor": "#0069B1"
   },
   {
     "prefix": "8022",
     "brand": "Lidl",
     "logoFile": "lidl.png",
     "color": "#2250a9",
-    "domain": "lidl.it"
+    "domain": "lidl.it",
+    "boxColor": "#0050AA"
   },
   {
     "prefix": "8024",
     "brand": "MD",
     "logoFile": "md.png",
-    "color": "#005ea7"
+    "color": "#005ea7",
+    "boxColor": "#005EA7"
   },
   {
     "prefix": "8012",
@@ -125,7 +129,8 @@
     "brand": "Dpiù",
     "logoFile": "dpiu.png",
     "color": "#005da9",
-    "domain": "dpiu.it"
+    "domain": "dpiu.it",
+    "boxColor": "#005CA9"
   },
   {
     "prefix": "8048",
@@ -138,7 +143,8 @@
     "prefix": "8051",
     "brand": "Decò",
     "logoFile": "deco.png",
-    "color": "#1d333e"
+    "color": "#1d333e",
+    "boxColor": "#1D333E"
   },
   {
     "prefix": "8052",
@@ -151,14 +157,16 @@
     "brand": "OBI",
     "logoFile": "obi.png",
     "color": "#F28C00",
-    "domain": "obi.it"
+    "domain": "obi.it",
+    "boxColor": "#F56600"
   },
   {
     "prefix": "8054",
     "brand": "Bricofer",
     "logoFile": "bricofer.png",
     "color": "#002C77",
-    "domain": "bricofer.it"
+    "domain": "bricofer.it",
+    "boxColor": "#003772"
   },
   {
     "prefix": "8055",
@@ -192,7 +200,8 @@
     "prefix": "8059",
     "brand": "In's Mercato",
     "logoFile": "inss.png",
-    "color": "#003DA5"
+    "color": "#003DA5",
+    "boxColor": "#FEF102"
   },
   {
     "prefix": "8060",
@@ -205,7 +214,8 @@
     "brand": "OVS",
     "logoFile": "ovs.png",
     "color": "#02243f",
-    "domain": "ovs.it"
+    "domain": "ovs.it",
+    "boxColor": "#FBBA07"
   },
   {
     "prefix": "8062",
@@ -301,7 +311,8 @@
     "brand": "Yamamay",
     "logoFile": "yamamay.png",
     "color": "#E50022",
-    "domain": "yamamay.com"
+    "domain": "yamamay.com",
+    "boxColor": "#B51032"
   },
   {
     "prefix": "8076",
@@ -445,7 +456,8 @@
     "brand": "Aldi",
     "logoFile": "aldi.png",
     "color": "#041E42",
-    "domain": "aldi.it"
+    "domain": "aldi.it",
+    "boxColor": "#D70000"
   },
   {
     "prefix": "8098",
@@ -564,7 +576,8 @@
     "brand": "Tigros",
     "logoFile": "tigros.png",
     "color": "#FBC02D",
-    "domain": "tigros.it"
+    "domain": "tigros.it",
+    "boxColor": "#FFDD02"
   },
   {
     "prefix": "8115",
@@ -578,7 +591,8 @@
     "brand": "Arcaplanet",
     "logoFile": "arcaplanet.png",
     "color": "#FFC72C",
-    "domain": "arcaplanet.it"
+    "domain": "arcaplanet.it",
+    "boxColor": "#FDDA14"
   },
   {
     "prefix": "8117",
@@ -711,7 +725,8 @@
     "brand": "Scalo Milano Outlet & More",
     "logoFile": "scalo_milano.png",
     "color": "#FAE330",
-    "domain": "scalomilano.it"
+    "domain": "scalomilano.it",
+    "boxColor": "#FAE330"
   },
   {
     "prefix": "8136",
@@ -746,7 +761,8 @@
     "brand": "Metro",
     "logoFile": "metro.png",
     "color": "#014171",
-    "domain": "metro.it"
+    "domain": "metro.it",
+    "boxColor": "#014171"
   },
   {
     "prefix": "8141",
@@ -793,14 +809,16 @@
     "prefix": "8147",
     "brand": "Pubblistore",
     "logoFile": "pubblistore.png",
-    "color": "#F5D908"
+    "color": "#F5D908",
+    "boxColor": "#060503"
   },
   {
     "prefix": "8148",
     "brand": "Shop Time",
     "logoFile": "shop_time.png",
     "color": "#3B2E8A",
-    "domain": "shoptimevimercate.it"
+    "domain": "shoptimevimercate.it",
+    "boxColor": "#322783"
   },
   {
     "prefix": "8149",

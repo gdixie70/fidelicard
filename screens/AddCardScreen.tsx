@@ -52,6 +52,7 @@ export default function AddCardScreen() {
   const [logoFile, setLogoFile] = useState<string | null>(null);
   const [logoUri, setLogoUri] = useState<any | null>(null);
   const [colore, setColore] = useState<string>('#1E1E1E');
+  const [boxColor, setBoxColor] = useState<string | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<BrandMatch[]>([]);
   const [scadenza, setScadenza] = useState<string | null>(null);
   const [scadenzaPickerVisible, setScadenzaPickerVisible] = useState(false);
@@ -83,10 +84,12 @@ export default function AddCardScreen() {
         setLogoFile(info.logoFile);
         setLogoUri(info.logoUri);
         setColore(info.color);
+        setBoxColor(info.boxColor);
       } else {
         setLogoFile(found.logoFile ?? null);
         setLogoUri(found.logoFile ? logoMap[found.logoFile] ?? null : null);
         setColore(found.colore ?? '#1E1E1E');
+        setBoxColor(undefined);
       }
       setConfirmedBrand(found.nome);
     })();
@@ -130,6 +133,7 @@ export default function AddCardScreen() {
     setLogoFile(info.logoFile);
     setLogoUri(info.logoUri);
     setColore(info.color);
+    setBoxColor(info.boxColor);
     setConfirmedBrand(info.brand);
     setSuggestions([]);
   };
@@ -138,6 +142,7 @@ export default function AddCardScreen() {
     setLogoFile(null);
     setLogoUri(null);
     setColore('#1E1E1E');
+    setBoxColor(undefined);
     setConfirmedBrand(null);
     setSuggestions([]);
   };
@@ -344,7 +349,7 @@ export default function AddCardScreen() {
       </Text>
 
       {nome.trim().length > 0 && (
-        <View style={[styles.preview, { backgroundColor: logoUri ? '#FFFFFF' : colore }]}>
+        <View style={[styles.preview, { backgroundColor: logoUri ? boxColor || '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
             <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} />
           </View>
