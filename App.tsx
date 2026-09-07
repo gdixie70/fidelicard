@@ -11,7 +11,8 @@ import AddCardScreen from './screens/AddCardScreen';
 import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
 import BulkImportScreen from './screens/BulkImportScreen';
-import { TouchableOpacity, Text, Platform } from 'react-native';
+import AboutScreen from './screens/AboutScreen';
+import { TouchableOpacity, Text, View, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   MostraCodice: { id: string };
   ScanCodice: undefined;
   ImportaMassivo: undefined;
+  Info: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -75,9 +77,14 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
               <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
             ),
             headerRight: () => (
-              <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
-                <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity onPress={() => navigation.navigate('Info')} style={{ marginRight: 15 }}>
+                  <Ionicons name="help-circle-outline" size={26} color="#FF9800" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
+                  <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
+                </TouchableOpacity>
+              </View>
             ),
           }}
         />
@@ -144,6 +151,11 @@ export default function App() {
           name="ImportaMassivo"
           component={BulkImportScreen}
           options={{ title: 'Importa più tessere' }}
+        />
+        <Stack.Screen
+          name="Info"
+          component={AboutScreen}
+          options={{ title: 'Come funziona' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
