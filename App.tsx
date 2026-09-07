@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
@@ -10,16 +10,19 @@ import CollaboraScreen from './screens/CollaboraScreen';
 import AddCardScreen from './screens/AddCardScreen';
 import ShowCodeScreen from './screens/ShowCodeScreen';
 import ScanCodeScreen from './screens/ScanCodeScreen';
+import BulkImportScreen from './screens/BulkImportScreen';
 import { TouchableOpacity, Text, Platform } from 'react-native';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
 import googleMobileAds, { isNativeAdsAvailable } from './utils/ads';
+import ActionSheet, { ActionSheetItem } from './components/ActionSheet';
 
 export type RootStackParamList = {
   Home: undefined;
   Aggiungi: { scannedCode?: string; editId?: string } | undefined;
   MostraCodice: { id: string };
   ScanCodice: undefined;
+  ImportaMassivo: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,42 +38,52 @@ const MyTheme = {
 };
 
 function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
+  const [addMenuVisible, setAddMenuVisible] = useState(false);
+
+  const addActions: ActionSheetItem[] = [
+    { key: 'single', icon: '➕', label: 'Aggiungi una tessera', onPress: () => navigation.navigate('Aggiungi') },
+    { key: 'bulk', icon: '📥', label: 'Importa più tessere da foto', onPress: () => navigation.navigate('ImportaMassivo') },
+  ];
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#121212' },
-        headerTitleStyle: {
-          fontSize: 22,
-          fontWeight: 'bold',
-          color: '#FF9800', // ← Titolo giallo/arancione
-        },
-        tabBarStyle: {
-          backgroundColor: '#121212',
-          borderTopWidth: 0, // ← Rimuove la linea
-          elevation: 0,       // ← Android compatibilità
-        },
-        tabBarActiveTintColor: '#FF9800',
-        tabBarInactiveTintColor: '#888',
-      }}
-    >
-      <Tab.Screen
-        name="Carte"
-        component={CarteScreen}
-        options={{
-          title: 'FideliCard',
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('Aggiungi')}>
-              <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
-            </TouchableOpacity>
-          ),
+    <>
+      <Tab.Navigator
+        screenOptions={{
+          headerStyle: { backgroundColor: '#121212' },
+          headerTitleStyle: {
+            fontSize: 22,
+            fontWeight: 'bold',
+            color: '#FF9800', // ← Titolo giallo/arancione
+          },
+          tabBarStyle: {
+            backgroundColor: '#121212',
+            borderTopWidth: 0, // ← Rimuove la linea
+            elevation: 0,       // ← Android compatibilità
+          },
+          tabBarActiveTintColor: '#FF9800',
+          tabBarInactiveTintColor: '#888',
         }}
-      />
-      <Tab.Screen
-        name="Collabora"
-        component={CollaboraScreen}
-        options={{ title: 'Collabora' }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name="Carte"
+          component={CarteScreen}
+          options={{
+            title: 'FideliCard',
+            headerRight: () => (
+              <TouchableOpacity onPress={() => setAddMenuVisible(true)}>
+                <Text style={{ fontSize: 26, marginRight: 15, color: '#FF9800' }}>＋</Text>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Collabora"
+          component={CollaboraScreen}
+          options={{ title: 'Collabora' }}
+        />
+      </Tab.Navigator>
+      <ActionSheet visible={addMenuVisible} items={addActions} onClose={() => setAddMenuVisible(false)} />
+    </>
   );
 }
 
@@ -112,6 +125,11 @@ export default function App() {
           name="ScanCodice"
           component={ScanCodeScreen}
           options={{ title: 'Scansiona codice' }}
+        />
+        <Stack.Screen
+          name="ImportaMassivo"
+          component={BulkImportScreen}
+          options={{ title: 'Importa più tessere' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

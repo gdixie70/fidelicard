@@ -18,10 +18,8 @@ import { RootStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
-import { scanFromURLAsync, BarcodeType } from 'expo-camera';
-import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
-import MLKitTextRecognition from '@react-native-ml-kit/text-recognition';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
+import { detectCardFromImage } from '../utils/cardImportFromImage';
 import logoMap from '../utils/logoMap';
 import { generateId } from '../utils/id';
 import { DURATION_OPTIONS, computeExpiryDate, formatDateIt } from '../utils/duration';
@@ -42,18 +40,6 @@ const PRESET_COLORS = [
   '#5E35B1',
   '#D81B60',
   '#6D4C41',
-];
-
-const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
-  'ean13',
-  'ean8',
-  'upc_a',
-  'upc_e',
-  'code128',
-  'code39',
-  'codabar',
-  'itf14',
-  'qr',
 ];
 
 export default function AddCardScreen() {
@@ -174,60 +160,12 @@ export default function AddCardScreen() {
     });
     if (result.canceled || !result.assets?.[0]) return;
 
-    const uri = result.assets[0].uri;
-    let codiceTrovato = false;
+    const { codice: codiceTrovato, brand } = await detectCardFromImage(result.assets[0].uri);
 
-    try {
-      const decoded = await scanFromURLAsync(uri, DECODABLE_BARCODE_TYPES);
-      if (decoded.length > 0) {
-        setCodice(decoded[0].data);
-        codiceTrovato = true;
-      }
-    } catch {
-      // si prova comunque con ML Kit qui sotto prima di arrendersi
-    }
-
-    // Limite noto di iOS: l'API nativa di Apple usata sopra (Core Image)
-    // riconosce da una foto statica solo i QR code, non i codici a barre
-    // "a righe" come EAN13/Code128, i più comuni sulle tessere. Come
-    // ripiego, su iOS proviamo con Google ML Kit (modulo nativo separato,
-    // funziona sia su iOS che Android, ma richiede una build vera: in
-    // Expo Go non è disponibile e questo tentativo fallisce in silenzio).
-    if (!codiceTrovato && Platform.OS === 'ios') {
-      try {
-        const barcodes = await MLKitBarcodeScanning.scan(uri);
-        if (barcodes.length > 0) {
-          setCodice(barcodes[0].value);
-          codiceTrovato = true;
-        }
-      } catch {
-        // modulo nativo non disponibile (es. Expo Go) o nessun barcode
-        // trovato: si passa comunque al messaggio informativo sotto
-      }
-    }
-
-    // Prova anche a leggere il nome del negozio dal testo nella foto (utile
-    // importando uno screenshot da un'altra app tipo Klarna/Stocard): tra
-    // tutte le righe di testo riconosciute, cerca quella che combacia con
-    // un brand conosciuto invece di indovinare "quella più in alto" - così
-    // ignora scritte come "Paga in negozio" che non sono il nome tessera.
-    // Come ML Kit sopra, richiede una build vera (fallisce in silenzio in
-    // Expo Go) e non blocca comunque il resto del flusso se fallisce.
-    if (!nome.trim()) {
-      try {
-        const { blocks } = await MLKitTextRecognition.recognize(uri);
-        const candidates = blocks.flatMap((block) => block.lines.map((line) => line.text));
-        for (const candidate of candidates) {
-          const match = getBrandInfo(candidate);
-          if (match) {
-            setNome(match.brand);
-            applyBrand(match);
-            break;
-          }
-        }
-      } catch {
-        // nessun problema: l'utente scrive comunque il nome a mano
-      }
+    if (codiceTrovato) setCodice(codiceTrovato);
+    if (brand && !nome.trim()) {
+      setNome(brand.brand);
+      applyBrand(brand);
     }
 
     if (!codiceTrovato) {
