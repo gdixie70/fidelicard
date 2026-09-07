@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
 import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
 import MLKitTextRecognition from '@react-native-ml-kit/text-recognition';
-import { getBrandInfo, BrandMatch } from './brandSearch';
+import { getBrandInfo, findBrandInText, BrandMatch } from './brandSearch';
 
 const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'ean13',
@@ -51,14 +51,32 @@ export async function detectCardFromImage(uri: string): Promise<ImageDetectionRe
 
   let brand: BrandMatch | null = null;
   try {
-    const { blocks } = await MLKitTextRecognition.recognize(uri);
-    const candidates = blocks.flatMap((block) => block.lines.map((line) => line.text));
-    for (const candidate of candidates) {
-      const match = getBrandInfo(candidate);
+    const { text: interoTesto, blocks } = await MLKitTextRecognition.recognize(uri);
+    const righe = blocks.flatMap((block) => block.lines.map((line) => line.text));
+
+    // Prima un confronto "pulito" per riga (la riga combacia esattamente o
+    // inizia col nome del brand), poi - se non basta - un confronto "il
+    // brand è contenuto nella riga" (utile per righe tipo "Carta Fedeltà
+    // Arcaplanet"), infine lo stesso confronto sull'intero testo letto,
+    // per i casi in cui il nome finisce spezzato su più righe.
+    for (const riga of righe) {
+      const match = getBrandInfo(riga);
       if (match) {
         brand = match;
         break;
       }
+    }
+    if (!brand) {
+      for (const riga of righe) {
+        const match = findBrandInText(riga);
+        if (match) {
+          brand = match;
+          break;
+        }
+      }
+    }
+    if (!brand) {
+      brand = findBrandInText(interoTesto);
     }
   } catch {
     // modulo nativo non disponibile: nessun nome auto-rilevato

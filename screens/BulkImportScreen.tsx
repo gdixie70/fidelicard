@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import { getBrandInfo } from '../utils/brandSearch';
+import { getBrandInfo, findBrandInText } from '../utils/brandSearch';
 import { detectCardFromImage } from '../utils/cardImportFromImage';
 import { generateId } from '../utils/id';
 import { Carta } from '../utils/types';
@@ -80,7 +80,7 @@ export default function BulkImportScreen() {
     setDraft((prev) =>
       prev.map((item) => {
         if (item.key !== key) return item;
-        const match = getBrandInfo(nome);
+        const match = getBrandInfo(nome) ?? findBrandInText(nome);
         return match
           ? { ...item, nome, logoFile: match.logoFile, logoUri: match.logoUri, colore: match.color }
           : { ...item, nome, logoFile: null, logoUri: null, colore: item.colore };

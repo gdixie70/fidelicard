@@ -97,3 +97,34 @@ export function getBrandInfo(input: string): BrandMatch | null {
   const [top] = searchBrands(input, 1);
   return top && top.score >= 80 ? top : null;
 }
+
+const escapeRegExp = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Cerca un brand conosciuto CONTENUTO da qualche parte in un testo più lungo
+ * (es. il testo letto da un OCR su uno screenshot, tipo "Carta Fedeltà
+ * Arcaplanet"), a differenza di searchBrands/getBrandInfo che confrontano
+ * nella direzione opposta (il nome del brand inizia con quello che hai
+ * digitato) - pensati per la digitazione progressiva, non per un testo
+ * lungo che contiene il nome come sottostringa. A parità di corrispondenza,
+ * preferisce il nome brand più lungo/specifico (es. "Carrefour Express"
+ * prima di "Carrefour").
+ */
+export function findBrandInText(text: string): BrandMatch | null {
+  const normalizedText = normalizeBrandText(text);
+  if (!normalizedText) return null;
+
+  let best: { item: BrandEntry; length: number } | null = null;
+
+  for (const item of brandsData) {
+    const name = normalizeBrandText(item.brand);
+    if (!name) continue;
+
+    const pattern = new RegExp(`\\b${escapeRegExp(name)}\\b`);
+    if (pattern.test(normalizedText) && (!best || name.length > best.length)) {
+      best = { item, length: name.length };
+    }
+  }
+
+  return best ? toMatch(best.item, 100) : null;
+}
