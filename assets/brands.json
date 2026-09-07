@@ -808,5 +808,145 @@
     "logoFile": "cienne.png",
     "color": "#1F3163",
     "domain": "ciennesrl.com"
+  },
+  {
+    "prefix": "8150",
+    "brand": "Eni",
+    "logoFile": "eni.png",
+    "color": "#FAB600",
+    "domain": "eni.com"
+  },
+  {
+    "prefix": "8151",
+    "brand": "Q8",
+    "logoFile": "q8.png",
+    "color": "#214199",
+    "domain": "q8.it"
+  },
+  {
+    "prefix": "8152",
+    "brand": "IP",
+    "logoFile": "ip.png",
+    "color": "#F68121",
+    "domain": "ip.gruppoapi.com"
+  },
+  {
+    "prefix": "8153",
+    "brand": "Tamoil",
+    "logoFile": "tamoil.png",
+    "color": "#EF2842",
+    "domain": "tamoil.it"
+  },
+  {
+    "prefix": "8154",
+    "brand": "Esso",
+    "logoFile": "esso.png",
+    "color": "#DA0013",
+    "domain": "eseitalia.it"
+  },
+  {
+    "prefix": "8155",
+    "brand": "BENU Farmacia",
+    "logoFile": "benu_farmacia.png",
+    "color": "#1D3276",
+    "domain": "benufarma.it"
+  },
+  {
+    "prefix": "8156",
+    "brand": "Salmoiraghi & Viganò",
+    "logoFile": "salmoiraghi_vigano.png",
+    "color": "#060F22",
+    "domain": "salmoiraghievigano.it"
+  },
+  {
+    "prefix": "8157",
+    "brand": "Toys Center",
+    "logoFile": "toys_center.png",
+    "color": "#C00008",
+    "domain": "toyscenter.it"
+  },
+  {
+    "prefix": "8158",
+    "brand": "Marionnaud",
+    "logoFile": "marionnaud.png",
+    "color": "#631B4B",
+    "domain": "marionnaud.it"
+  },
+  {
+    "prefix": "8159",
+    "brand": "Bricocenter",
+    "logoFile": "bricocenter.png",
+    "color": "#E20613",
+    "domain": "bricocenter.it"
+  },
+  {
+    "prefix": "8160",
+    "brand": "McDonald's",
+    "logoFile": "mcdonalds.png",
+    "color": "#DA291C",
+    "domain": "mcdonalds.it"
+  },
+  {
+    "prefix": "8161",
+    "brand": "Burger King",
+    "logoFile": "burgerking.png",
+    "color": "#D62300",
+    "domain": "burgerking.it"
+  },
+  {
+    "prefix": "8162",
+    "brand": "KFC",
+    "logoFile": "kfc.png",
+    "color": "#EE1832",
+    "domain": "kfc.it"
+  },
+  {
+    "prefix": "8163",
+    "brand": "Autogrill",
+    "logoFile": "autogrill.png",
+    "color": "#ED1C2E",
+    "domain": "autogrill.it"
+  },
+  {
+    "prefix": "8164",
+    "brand": "Virgin Active",
+    "logoFile": "virgin_active.png",
+    "color": "#E31731",
+    "domain": "virginactive.it"
+  },
+  {
+    "prefix": "8165",
+    "brand": "Doro Supermercati",
+    "logoFile": "doro_supermercati.png",
+    "color": "#008838",
+    "domain": "dorosupermercati.it"
+  },
+  {
+    "prefix": "8166",
+    "brand": "Sole 365",
+    "logoFile": "sole365.png",
+    "color": "#FF8800",
+    "domain": "sole365.it"
+  },
+  {
+    "prefix": "8167",
+    "brand": "Iperal",
+    "logoFile": "iperal.png",
+    "color": "#F09000",
+    "domain": "iperal.it"
+  },
+  {
+    "prefix": "8168",
+    "brand": "Stroili",
+    "logoFile": "stroili.png",
+    "color": "#000000",
+    "domain": "stroilioro.com"
+  },
+  {
+    "prefix": "8169",
+    "brand": "Bluespirit",
+    "logoFile": "bluespirit.png",
+    "color": "#051B3E",
+    "domain": "bluespirit.com"
   }
 ]
