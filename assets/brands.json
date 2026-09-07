@@ -628,5 +628,12 @@
     "logoFile": "goldenpoint.png",
     "color": "#8C7048",
     "domain": "goldenpoint.com"
+  },
+  {
+    "prefix": "8124",
+    "brand": "Conté Scarpe e Moda",
+    "logoFile": "conte.png",
+    "color": "#BEDC2D",
+    "domain": "contescarpemoda.it"
   }
 ]

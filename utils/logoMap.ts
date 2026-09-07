@@ -92,6 +92,7 @@ const logoMap: { [key: string]: any } = {
   'original_marines.png': require('../assets/loghi/original_marines.png'),
   'coin.png': require('../assets/loghi/coin.png'),
   'goldenpoint.png': require('../assets/loghi/goldenpoint.png'),
+  'conte.png': require('../assets/loghi/conte.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 
