@@ -781,5 +781,32 @@
     "logoFile": "buy_benefit.png",
     "color": "#E8632E",
     "domain": "buyandbenefit.com"
+  },
+  {
+    "prefix": "8146",
+    "brand": "PanBolla",
+    "logoFile": "panbolla.png",
+    "color": "#F0A50A",
+    "domain": "panbolla.it"
+  },
+  {
+    "prefix": "8147",
+    "brand": "Pubblistore",
+    "logoFile": "pubblistore.png",
+    "color": "#F5D908"
+  },
+  {
+    "prefix": "8148",
+    "brand": "Shop Time",
+    "logoFile": "shop_time.png",
+    "color": "#3B2E8A",
+    "domain": "shoptimevimercate.it"
+  },
+  {
+    "prefix": "8149",
+    "brand": "Cienne",
+    "logoFile": "cienne.png",
+    "color": "#1F3163",
+    "domain": "ciennesrl.com"
   }
 ]

@@ -114,6 +114,10 @@ const logoMap: { [key: string]: any } = {
   'payback.png': require('../assets/loghi/payback.png'),
   'flying_blue.png': require('../assets/loghi/flying_blue.png'),
   'buy_benefit.png': require('../assets/loghi/buy_benefit.png'),
+  'panbolla.png': require('../assets/loghi/panbolla.png'),
+  'pubblistore.png': require('../assets/loghi/pubblistore.png'),
+  'shop_time.png': require('../assets/loghi/shop_time.png'),
+  'cienne.png': require('../assets/loghi/cienne.png'),
   // Aggiungi qui il logo quando ne hai uno nuovo e corretto in assets/loghi
 };
 
