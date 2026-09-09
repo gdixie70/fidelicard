@@ -57,7 +57,13 @@ async function fetchRemoteLogo(logoFile: string): Promise<string | null> {
     ensureCacheDir();
     const cached = new File(CACHE_DIR, logoFile);
     if (cached.exists) {
-      return cached.size >= MIN_VALID_LOGO_BYTES ? cached.uri : null;
+      if (cached.size < MIN_VALID_LOGO_BYTES) return null;
+      // Mostriamo subito quello che abbiamo già in cache, e in parallelo
+      // controlliamo se su GitHub è cambiato (es. un logo sostituito con uno
+      // migliore): se sì, lo riscarichiamo per la prossima volta, senza far
+      // aspettare questa richiesta né richiedere nessuna azione all'utente.
+      revalidateInBackground(logoFile, cached);
+      return cached.uri;
     }
 
     const downloaded = await File.downloadFileAsync(`${REPO_RAW_BASE}/${logoFile}`, cached);
@@ -70,5 +76,32 @@ async function fetchRemoteLogo(logoFile: string): Promise<string | null> {
     return downloaded.uri;
   } catch {
     return null;
+  }
+}
+
+// Evita revalidazioni duplicate in parallelo per lo stesso file.
+const revalidating = new Set<string>();
+
+async function revalidateInBackground(logoFile: string, cached: File): Promise<void> {
+  if (revalidating.has(logoFile)) return;
+  revalidating.add(logoFile);
+
+  try {
+    const head = await fetch(`${REPO_RAW_BASE}/${logoFile}`, { method: 'HEAD' });
+    if (!head.ok) return;
+
+    // Confrontiamo solo la dimensione (niente ETag da gestire): un logo
+    // sostituito ha quasi sempre una dimensione diversa, ed è un controllo
+    // leggero (nessun corpo scaricato) da fare ogni volta senza pesare sui
+    // dati mobili.
+    const remoteSize = Number(head.headers.get('content-length') || 0);
+    if (!remoteSize || remoteSize === cached.size) return;
+
+    await File.downloadFileAsync(`${REPO_RAW_BASE}/${logoFile}`, cached, { idempotent: true });
+  } catch {
+    // offline o GitHub irraggiungibile: teniamo la cache esistente, si
+    // ritenterà al prossimo utilizzo di questo logo.
+  } finally {
+    revalidating.delete(logoFile);
   }
 }
