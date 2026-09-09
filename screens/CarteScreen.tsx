@@ -10,6 +10,7 @@ import {
   Animated as RNAnimated,
   Platform,
   AppState,
+  DeviceEventEmitter,
 } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,7 +23,7 @@ import Reanimated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { loadAllCards, saveAllCards } from '../utils/cardStore';
+import { loadAllCards, saveAllCards, CARDS_CHANGED_EVENT } from '../utils/cardStore';
 import { isExpired } from '../utils/duration';
 import { Carta } from '../utils/types';
 import CardTile from '../components/CardTile';
@@ -52,6 +53,14 @@ export default function CarteScreen() {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') loadCards();
     });
+    return () => sub.remove();
+  }, []);
+
+  // Una tessera ricevuta in prestito viene aggiunta da LendRequestHandler,
+  // montato fuori da questa schermata: senza questo listener la Home resta
+  // ferma alla lista vecchia finché non si cambia sezione e si torna qui.
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener(CARDS_CHANGED_EVENT, loadCards);
     return () => sub.remove();
   }, []);
 

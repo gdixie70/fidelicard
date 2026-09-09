@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, ScrollView, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
@@ -91,17 +91,6 @@ export default function ShowCodeScreen() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shareCode = async () => {
-    if (!card) return;
-    try {
-      await Share.share({
-        message: `${card.nome}: ${card.codice}`,
-      });
-    } catch {
-      Alert.alert(t('common.error'), t('showCode.errorShareBody'));
-    }
-  };
-
   const handleEdit = () => {
     if (!card) return;
     navigation.navigate('Aggiungi', { editId: card.id });
@@ -175,10 +164,6 @@ export default function ShowCodeScreen() {
           <TouchableOpacity style={styles.actionButton} onPress={copyCode}>
             <Text style={styles.actionIcon}>{copied ? '✅' : '📋'}</Text>
             <Text style={styles.actionText}>{copied ? t('showCode.copied') : t('showCode.copyCode')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={shareCode}>
-            <Text style={styles.actionIcon}>📤</Text>
-            <Text style={styles.actionText}>{t('showCode.share')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
             <Text style={styles.actionIcon}>✏️</Text>

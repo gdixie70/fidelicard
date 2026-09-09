@@ -1,9 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native';
 import { Carta } from './types';
 import { generateId } from './id';
 import { LendPayload } from './lendLink';
 
 const KEY = 'carte';
+
+// Emesso ogni volta che l'elenco tessere cambia da fuori la schermata Home
+// (es. una tessera ricevuta in prestito tramite link, gestita da
+// LendRequestHandler): la Home lo ascolta per ricaricarsi subito, senza
+// aspettare che l'utente cambi sezione e torni indietro.
+export const CARDS_CHANGED_EVENT = 'carte:changed';
 
 export async function loadAllCards(): Promise<Carta[]> {
   const json = await AsyncStorage.getItem(KEY);
@@ -58,5 +65,6 @@ export async function acceptLentCard(payload: LendPayload): Promise<AcceptLendRe
   };
 
   await saveAllCards([...cards, nuovaCarta]);
+  DeviceEventEmitter.emit(CARDS_CHANGED_EVENT);
   return { status: 'added', card: nuovaCarta };
 }
