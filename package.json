@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "logo:prepare": "node scripts/prepare-brand-logo.js"
+    "logo:prepare": "node scripts/prepare-brand-logo.js",
+    "logo:publish": "node \"assets/loghi/Aggiornamento loghi/publish-logo-server.js\""
   },
   "dependencies": {
     "@expo/vector-icons": "~15.0.2",

@@ -42,3 +42,7 @@ assets/OLD_*.png
 
 # bozze generate da scripts/prepare-brand-logo.js, solo per revisione locale
 assets/brands.draft.json
+
+# PNG scaricati a mano in attesa di pubblicazione (vedi
+# assets/loghi/Aggiornamento loghi/publish-logo-server.js) - lo script stesso resta versionato
+assets/loghi/Aggiornamento loghi/*.png
