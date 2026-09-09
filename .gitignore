@@ -39,3 +39,6 @@ yarn-error.*
 # old backups
 FideliCards.zip
 assets/OLD_*.png
+
+# bozze generate da scripts/prepare-brand-logo.js, solo per revisione locale
+assets/brands.draft.json
