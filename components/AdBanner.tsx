@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, StyleProp, ViewStyle, Platform } from 'react-native';
 import googleMobileAds, { isNativeAdsAvailable } from '../utils/ads';
 import { getAdsRemoved, subscribeAdsRemoved } from '../utils/iap';
 import { t } from '../utils/i18n';
@@ -17,12 +17,16 @@ type Props = {
 // per sbaglio una versione senza pubblicità.
 const adsHidden = process.env.EXPO_PUBLIC_HIDE_ADS === '1';
 
-// ID reale del blocco annunci Banner su AdMob (account Google AdMob di
-// Gianluca, app "Fidelicard" iOS). Da qui in poi mostra annunci veri: non
-// toccare/cliccare ripetutamente i propri annunci durante i test, Google
-// considera i click "auto-generati" traffico non valido e può sospendere
-// l'account AdMob.
-const BANNER_UNIT_ID = 'ca-app-pub-1231745392454227/8807802539';
+// ID reali del blocco annunci Banner su AdMob (account Google AdMob di
+// Gianluca, un'app separata per iOS e per Android). Da qui in poi mostra
+// annunci veri: non toccare/cliccare ripetutamente i propri annunci durante
+// i test, Google considera i click "auto-generati" traffico non valido e
+// può sospendere l'account AdMob.
+const BANNER_UNIT_ID = Platform.select({
+  ios: 'ca-app-pub-1231745392454227/8807802539',
+  android: 'ca-app-pub-1231745392454227/9637919469',
+  default: 'ca-app-pub-1231745392454227/8807802539',
+});
 
 export default function AdBanner({ variant = 'dark', style }: Props) {
   const isLight = variant === 'light';
