@@ -975,9 +975,10 @@
   },
   {
     "prefix": "",
-    "brand": "Tigota",
+    "brand": "Tigotà",
     "logoFile": "tigota.png",
     "color": "#009DAE",
-    "domain": "tigota.it"
+    "domain": "tigota.it",
+    "boxColor": "#009DAE"
   }
 ]

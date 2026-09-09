@@ -22,6 +22,7 @@ import * as Sharing from 'expo-sharing';
 import { searchBrands, getBrandInfo, BrandMatch } from '../utils/brandSearch';
 import { detectCardFromImage } from '../utils/cardImportFromImage';
 import logoMap from '../utils/logoMap';
+import { hasCachedLogo } from '../utils/brandLogo';
 import { generateId } from '../utils/id';
 import { DURATION_OPTIONS, computeExpiryDate, formatDateIt } from '../utils/duration';
 import { Carta } from '../utils/types';
@@ -240,6 +241,12 @@ export default function AddCardScreen() {
     }
   };
 
+  // logoUri copre solo i loghi inclusi nel bundle: un brand aggiunto dopo
+  // l'ultima pubblicazione (come Tigotà) ha comunque un logo vero, solo
+  // recuperato/cacheato da GitHub - senza questo controllo l'anteprima lo
+  // tratterebbe come "nessun logo trovato".
+  const hasRealLogo = !!logoUri || hasCachedLogo(logoFile);
+
   const saveCard = async () => {
     if (!nome.trim()) {
       Alert.alert(t('common.error'), t('addCard.errorNameBody'));
@@ -263,7 +270,7 @@ export default function AddCardScreen() {
             codice: codice.trim(),
             logoFile,
             colore,
-            icon: logoUri ? null : icon,
+            icon: hasRealLogo ? null : icon,
             scadenza,
           };
         }
@@ -283,7 +290,7 @@ export default function AddCardScreen() {
 
       // Nessun logo riconosciuto per questo nome: segnala in automatico
       // (non blocca né rallenta il salvataggio).
-      if (!logoUri) {
+      if (!hasRealLogo) {
         reportMissingLogo(nome.trim());
       }
 
@@ -337,7 +344,7 @@ export default function AddCardScreen() {
               style={styles.suggestionRow}
               onPress={() => selectSuggestion(match)}
             >
-              <View style={[styles.suggestionSwatch, match.logoUri && styles.suggestionSwatchWithLogo]}>
+              <View style={[styles.suggestionSwatch, (match.logoUri || hasCachedLogo(match.logoFile)) && styles.suggestionSwatchWithLogo]}>
                 <BrandLogo brand={match.brand} color={match.color} logoSource={match.logoUri} logoFile={match.logoFile} />
               </View>
               <Text style={styles.suggestionText}>{match.brand}</Text>
@@ -375,14 +382,14 @@ export default function AddCardScreen() {
       </Text>
 
       {nome.trim().length > 0 && (
-        <View style={[styles.preview, { backgroundColor: logoUri ? boxColor || '#FFFFFF' : colore }]}>
+        <View style={[styles.preview, { backgroundColor: hasRealLogo ? boxColor || '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
             <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} icon={icon} />
           </View>
         </View>
       )}
 
-      {nome.trim().length > 0 && !logoUri && (
+      {nome.trim().length > 0 && !hasRealLogo && (
         <View style={styles.colorPickerBox}>
           <Text style={styles.colorPickerLabel}>
             {t('addCard.noLogoLabel')}
