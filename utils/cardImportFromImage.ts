@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
 import { scanFromURLAsync, BarcodeType } from 'expo-camera';
-import MLKitBarcodeScanning from '@react-native-ml-kit/barcode-scanning';
+import MLKitBarcodeScanning, { BarcodeFormat as MLKitBarcodeFormat } from '@react-native-ml-kit/barcode-scanning';
 import MLKitTextRecognition from '@react-native-ml-kit/text-recognition';
 import { getBrandInfo, findBrandInText, BrandMatch } from './brandSearch';
+import { restoreLeadingZero } from './barcodeFormat';
 
 const DECODABLE_BARCODE_TYPES: BarcodeType[] = [
   'ean13',
@@ -31,7 +32,11 @@ export async function detectCardFromImage(uri: string): Promise<ImageDetectionRe
 
   try {
     const decoded = await scanFromURLAsync(uri, DECODABLE_BARCODE_TYPES);
-    if (decoded.length > 0) codice = decoded[0].data;
+    if (decoded.length > 0) {
+      const first = decoded[0];
+      const isUpcOrEan13 = first.type === 'upc_a' || first.type === 'upc_e' || first.type === 'ean13';
+      codice = restoreLeadingZero(first.data, isUpcOrEan13);
+    }
   } catch {
     // si prova comunque con ML Kit qui sotto
   }
@@ -43,7 +48,14 @@ export async function detectCardFromImage(uri: string): Promise<ImageDetectionRe
   if (!codice && Platform.OS === 'ios') {
     try {
       const barcodes = await MLKitBarcodeScanning.scan(uri);
-      if (barcodes.length > 0) codice = barcodes[0].value;
+      if (barcodes.length > 0) {
+        const first = barcodes[0];
+        const isUpcOrEan13 =
+          first.format === MLKitBarcodeFormat.UPC_A ||
+          first.format === MLKitBarcodeFormat.UPC_E ||
+          first.format === MLKitBarcodeFormat.EAN_13;
+        codice = restoreLeadingZero(first.value, isUpcOrEan13);
+      }
     } catch {
       // modulo nativo non disponibile o nessun barcode trovato
     }

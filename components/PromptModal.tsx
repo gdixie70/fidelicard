@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { t } from '../utils/i18n';
 
 type Props = {
   visible: boolean;
@@ -25,7 +26,7 @@ export default function PromptModal({
   title,
   placeholder,
   initialValue = '',
-  confirmLabel = 'Conferma',
+  confirmLabel = t('common.confirm'),
   onConfirm,
   onCancel,
   onDismiss,
@@ -63,7 +64,7 @@ export default function PromptModal({
           />
           <View style={styles.actions}>
             <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-              <Text style={styles.cancelText}>Annulla</Text>
+              <Text style={styles.cancelText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.confirmButton} onPress={confirm}>
               <Text style={styles.confirmText}>{confirmLabel}</Text>

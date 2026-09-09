@@ -3,6 +3,7 @@ import { Linking, Alert } from 'react-native';
 import { parseLendLink, LendPayload } from '../utils/lendLink';
 import { acceptLentCard } from '../utils/cardStore';
 import { formatDateIt } from '../utils/duration';
+import { t } from '../utils/i18n';
 
 /**
  * Componente "invisibile" montato alla radice dell'app: ascolta i link
@@ -24,15 +25,15 @@ export default function LendRequestHandler() {
 
   const confirmAndAccept = (payload: LendPayload) => {
     const scadenzaTesto = payload.scadenza
-      ? ` fino al ${formatDateIt(payload.scadenza)}`
-      : ', senza scadenza';
+      ? t('lend.untilSuffix', { date: formatDateIt(payload.scadenza) })
+      : t('lend.noExpirySuffix');
 
     Alert.alert(
-      'Prestito tessera',
-      `${payload.da} ti presta la sua tessera ${payload.nome}${scadenzaTesto}. Vuoi accettarla?`,
+      t('lend.requestTitle'),
+      t('lend.requestBody', { from: payload.da, name: payload.nome, expiry: scadenzaTesto }),
       [
-        { text: 'No', style: 'cancel' },
-        { text: 'Sì, aggiungila', onPress: () => acceptAndNotify(payload) },
+        { text: t('lend.no'), style: 'cancel' },
+        { text: t('lend.yesAdd'), onPress: () => acceptAndNotify(payload) },
       ]
     );
   };
@@ -41,11 +42,11 @@ export default function LendRequestHandler() {
     const result = await acceptLentCard(payload);
     if (result.status === 'duplicate') {
       Alert.alert(
-        'Tessera già presente',
-        `Hai già una tessera con questo codice ("${result.card.nome}"): non l'ho aggiunta di nuovo.`
+        t('lend.duplicateTitle'),
+        t('lend.duplicateBody', { name: result.card.nome })
       );
     } else {
-      Alert.alert('Fatto!', `"${payload.nome}" di ${payload.da} è stata aggiunta alle tue carte.`);
+      Alert.alert(t('lend.doneTitle'), t('lend.doneBody', { name: payload.nome, from: payload.da }));
     }
   };
 

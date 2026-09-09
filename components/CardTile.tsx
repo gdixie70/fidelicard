@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import logoMap from '../utils/logoMap';
 import { getBrandInfo } from '../utils/brandSearch';
 import { hasCachedLogo } from '../utils/brandLogo';
@@ -7,9 +7,6 @@ import { Carta } from '../utils/types';
 import BrandLogo from './BrandLogo';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
-
-export const CARD_WIDTH = Dimensions.get('window').width / 2 - 20;
-export const CARD_HEIGHT = CARD_WIDTH / 1.586;
 
 type Props = {
   carta: Carta;
@@ -23,6 +20,14 @@ type Props = {
  * così le due pagine restano visivamente identiche senza duplicare lo stile.
  */
 export default function CardTile({ carta, onPress, badge }: Props) {
+  // Va ricalcolato ad ogni render con l'hook (non una volta sola con
+  // Dimensions.get) altrimenti su iPad ruotando da verticale a orizzontale
+  // le carte restano congelate alla larghezza di partenza, lasciando un
+  // grosso spazio vuoto invece di riempire la riga.
+  const { width } = useWindowDimensions();
+  const cardWidth = width / 2 - 20;
+  const cardHeight = cardWidth / 1.586;
+
   // Il brand viene ricercato di nuovo ad ogni render (invece di fidarsi solo
   // dei dati salvati con la carta) così che le carte aggiunte tempo fa
   // beneficino automaticamente di correzioni/aggiunte fatte in seguito a
@@ -43,13 +48,17 @@ export default function CardTile({ carta, onPress, badge }: Props) {
   return (
     <View style={styles.shadowContainer}>
       <TouchableOpacity
-        style={[styles.card, { backgroundColor }, hasRealLogo && styles.cardWithLogo]}
+        style={[
+          styles.card,
+          { width: cardWidth, height: cardHeight, backgroundColor },
+          hasRealLogo && styles.cardWithLogo,
+        ]}
         activeOpacity={0.85}
         onPress={onPress}
       >
         {badge}
         <View style={[styles.logo, hasRealLogo && styles.logoWithPadding]}>
-          <BrandLogo brand={carta.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} />
+          <BrandLogo brand={carta.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} icon={hasRealLogo ? null : carta.icon} />
         </View>
         <View style={styles.nameBadge}>
           <Text style={styles.nameText}>{carta.nome}</Text>
@@ -71,8 +80,6 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   card: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',

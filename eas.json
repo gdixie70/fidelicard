@@ -13,6 +13,12 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "screenshots": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_HIDE_ADS": "1"
+      }
     }
   },
   "submit": {

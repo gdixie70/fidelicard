@@ -21,6 +21,7 @@ import { generateId } from '../utils/id';
 import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import AdBanner from '../components/AdBanner';
+import { t, cardWord } from '../utils/i18n';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
@@ -44,7 +45,7 @@ export default function BulkImportScreen() {
   const scegliScreenshot = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permesso negato', "Consenti l'accesso alle foto per importare le tessere.");
+      Alert.alert(t('common.permissionDenied'), t('bulkImport.permissionBody'));
       return;
     }
 
@@ -102,8 +103,8 @@ export default function BulkImportScreen() {
     const incomplete = draft.filter((d) => !d.nome.trim() || !d.codice.trim());
     if (incomplete.length > 0) {
       Alert.alert(
-        'Alcune tessere sono incomplete',
-        `${incomplete.length} tesser${incomplete.length === 1 ? 'a' : 'e'} senza nome o codice: completale o rimuovile con 🗑️ prima di salvare.`
+        t('bulkImport.incompleteTitle'),
+        t('bulkImport.incompleteBody', { count: incomplete.length, word: cardWord(incomplete.length) })
       );
       return;
     }
@@ -129,14 +130,12 @@ export default function BulkImportScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Importa più tessere insieme</Text>
+          <Text style={styles.introTitle}>{t('bulkImport.introTitle')}</Text>
           <Text style={styles.introText}>
-            Utile se arrivi da un'altra app (es. Klarna): fai uno screenshot di ogni tessera, poi selezionali
-            tutti insieme qui. Provo a riconoscere codice e negozio di ognuna - potrai controllare e correggere
-            prima di salvare.
+            {t('bulkImport.introText')}
           </Text>
           <TouchableOpacity style={styles.primaryButton} onPress={scegliScreenshot}>
-            <Text style={styles.primaryButtonText}>Scegli gli screenshot</Text>
+            <Text style={styles.primaryButtonText}>{t('bulkImport.chooseScreenshots')}</Text>
           </TouchableOpacity>
         </View>
         <AdBanner style={styles.adBanner} />
@@ -149,7 +148,7 @@ export default function BulkImportScreen() {
       <SafeAreaView style={[styles.container, styles.centered]} edges={['bottom']}>
         <ActivityIndicator size="large" color="#FF9800" />
         <Text style={styles.progressText}>
-          Analizzo le foto... {progresso.fatte}/{progresso.totali}
+          {t('bulkImport.analyzing', { done: progresso.fatte, total: progresso.totali })}
         </Text>
       </SafeAreaView>
     );
@@ -159,8 +158,7 @@ export default function BulkImportScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.scroll}>
         <Text style={styles.reviewHint}>
-          Controlla nome e codice di ogni tessera prima di salvare - se qualcosa non è stato letto bene, correggilo
-          qui sotto.
+          {t('bulkImport.reviewHint')}
         </Text>
         {draft.map((item) => {
           const hasRealLogo = !!item.logoUri;
@@ -173,7 +171,7 @@ export default function BulkImportScreen() {
               <View style={styles.rowFields}>
                 <TextInput
                   style={styles.rowInput}
-                  placeholder="Nome negozio"
+                  placeholder={t('bulkImport.storeNamePlaceholder')}
                   placeholderTextColor="#888"
                   value={item.nome}
                   onChangeText={(text) => aggiornaNome(item.key, text)}
@@ -182,7 +180,7 @@ export default function BulkImportScreen() {
                 />
                 <TextInput
                   style={styles.rowInput}
-                  placeholder="Codice tessera"
+                  placeholder={t('common.cardCodePlaceholder')}
                   placeholderTextColor="#888"
                   value={item.codice}
                   onChangeText={(text) => aggiornaCodice(item.key, text)}
@@ -198,7 +196,7 @@ export default function BulkImportScreen() {
 
       <TouchableOpacity style={styles.primaryButton} onPress={salvaTutte}>
         <Text style={styles.primaryButtonText}>
-          Salva {draft.length} tesser{draft.length === 1 ? 'a' : 'e'}
+          {t('bulkImport.saveButton', { count: draft.length, word: cardWord(draft.length) })}
         </Text>
       </TouchableOpacity>
 

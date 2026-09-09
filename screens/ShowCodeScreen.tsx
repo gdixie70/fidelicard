@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, ScrollView, Alert, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import logoMap from '../utils/logoMap';
 import { Carta } from '../utils/types';
 import BrandLogo from '../components/BrandLogo';
 import AdBanner from '../components/AdBanner';
+import { t } from '../utils/i18n';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
@@ -24,9 +25,12 @@ type Params = {
   };
 };
 
-const BARCODE_WIDTH = Dimensions.get('window').width - 112;
-
 export default function ShowCodeScreen() {
+  const { width: windowWidth } = useWindowDimensions();
+  const barcodeWidth = windowWidth - 112;
+  const headerWidth = windowWidth - 80;
+  const headerHeight = headerWidth / 2.2;
+
   const route = useRoute<RouteProp<Params>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [card, setCard] = useState<Carta | null>(null);
@@ -59,12 +63,12 @@ export default function ShowCodeScreen() {
 
   const removePrestito = (destinatario: string) => {
     Alert.alert(
-      'Togliere dall\'elenco?',
-      `"${destinatario}" verrà tolto dall'elenco di chi ha ricevuto questa tessera in prestito (è solo un promemoria: la sua copia non viene toccata).`,
+      t('collabora.removeTitle'),
+      t('collabora.removeBody', { name: destinatario }),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Togli',
+          text: t('collabora.removeConfirm'),
           style: 'destructive',
           onPress: async () => {
             if (!card) return;
@@ -94,7 +98,7 @@ export default function ShowCodeScreen() {
         message: `${card.nome}: ${card.codice}`,
       });
     } catch {
-      Alert.alert('Errore', 'Non sono riuscito ad aprire la condivisione.');
+      Alert.alert(t('common.error'), t('showCode.errorShareBody'));
     }
   };
 
@@ -105,10 +109,10 @@ export default function ShowCodeScreen() {
 
   const handleDelete = () => {
     if (!card) return;
-    Alert.alert('Elimina Carta', `Vuoi eliminare "${card.nome}"?`, [
-      { text: 'Annulla', style: 'cancel' },
+    Alert.alert(t('showCode.deleteTitle'), t('showCode.deleteBody', { name: card.nome }), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Elimina',
+        text: t('showCode.deleteConfirm'),
         style: 'destructive',
         onPress: async () => {
           const json = await AsyncStorage.getItem('carte');
@@ -134,9 +138,15 @@ export default function ShowCodeScreen() {
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.container}>
         <View style={styles.shadowWrap}>
-          <View style={[styles.header, { backgroundColor: headerBackground }, hasRealLogo && styles.headerWithLogo]}>
+          <View
+            style={[
+              styles.header,
+              { width: headerWidth, height: headerHeight, backgroundColor: headerBackground },
+              hasRealLogo && styles.headerWithLogo,
+            ]}
+          >
             <View style={[styles.headerLogo, hasRealLogo && styles.headerLogoWithPadding]}>
-              <BrandLogo brand={card.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} />
+              <BrandLogo brand={card.nome} color={brandColor} logoSource={logoSource} logoFile={logoFile} icon={hasRealLogo ? null : card.icon} />
             </View>
           </View>
         </View>
@@ -149,7 +159,7 @@ export default function ShowCodeScreen() {
             value={card.codice}
             format={format}
             singleBarWidth={2}
-            maxWidth={BARCODE_WIDTH}
+            maxWidth={barcodeWidth}
             height={110}
             lineColor="#000000"
             backgroundColor="#ffffff"
@@ -164,35 +174,38 @@ export default function ShowCodeScreen() {
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionButton} onPress={copyCode}>
             <Text style={styles.actionIcon}>{copied ? '✅' : '📋'}</Text>
-            <Text style={styles.actionText}>{copied ? 'Copiato' : 'Copia codice'}</Text>
+            <Text style={styles.actionText}>{copied ? t('showCode.copied') : t('showCode.copyCode')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={shareCode}>
             <Text style={styles.actionIcon}>📤</Text>
-            <Text style={styles.actionText}>Condividi</Text>
+            <Text style={styles.actionText}>{t('showCode.share')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleEdit}>
             <Text style={styles.actionIcon}>✏️</Text>
-            <Text style={styles.actionText}>Modifica</Text>
+            <Text style={styles.actionText}>{t('showCode.edit')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
             <Text style={styles.actionIcon}>🗑️</Text>
-            <Text style={[styles.actionText, styles.deleteText]}>Elimina</Text>
+            <Text style={[styles.actionText, styles.deleteText]}>{t('showCode.delete')}</Text>
           </TouchableOpacity>
         </View>
 
         {card.prestataDa && (
           <View style={styles.infoBox}>
-            <Text style={styles.infoText}>💛 Prestata da {card.prestataDa}</Text>
+            <Text style={styles.infoText}>{t('showCode.borrowedFrom', { name: card.prestataDa })}</Text>
           </View>
         )}
 
         {!!card.prestiti?.length && (
           <View style={styles.lendListBox}>
-            <Text style={styles.lendListTitle}>Prestata a:</Text>
+            <Text style={styles.lendListTitle}>{t('showCode.lentToTitle')}</Text>
             {card.prestiti.map((p) => (
               <View key={p.destinatario} style={styles.lendRow}>
                 <Text style={styles.lendRowText}>
-                  ⭐ {p.destinatario} — {p.scadenza ? `fino al ${formatDateIt(p.scadenza)}` : 'senza scadenza'}
+                  {t('showCode.lentToRow', {
+                    name: p.destinatario,
+                    expiry: p.scadenza ? t('common.until', { date: formatDateIt(p.scadenza) }) : t('common.noExpiry'),
+                  })}
                 </Text>
                 <TouchableOpacity onPress={() => removePrestito(p.destinatario)}>
                   <Text style={styles.lendRowRemove}>✕</Text>
@@ -208,9 +221,6 @@ export default function ShowCodeScreen() {
   );
 }
 
-const HEADER_WIDTH = Dimensions.get('window').width - 80;
-const HEADER_HEIGHT = HEADER_WIDTH / 2.2;
-
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#121212' },
   scrollFlex: { flex: 1 },
@@ -224,8 +234,6 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   header: {
-    width: HEADER_WIDTH,
-    height: HEADER_HEIGHT,
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',

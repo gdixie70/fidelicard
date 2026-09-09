@@ -27,6 +27,7 @@ import { isExpired } from '../utils/duration';
 import { Carta } from '../utils/types';
 import CardTile from '../components/CardTile';
 import AdBanner from '../components/AdBanner';
+import { t } from '../utils/i18n';
 
 const AnimatedPath = Reanimated.createAnimatedComponent(Path);
 
@@ -98,12 +99,12 @@ export default function CarteScreen() {
     const badge = prestitiAttivi > 0 ? (
       <View style={styles.lendBadge}>
         <Text style={styles.lendBadgeText}>
-          ⭐ Prestata{prestitiAttivi > 1 ? ` (${prestitiAttivi})` : ''}
+          {t('carte.lentBadge')}{prestitiAttivi > 1 ? ` (${prestitiAttivi})` : ''}
         </Text>
       </View>
     ) : item.prestataDa ? (
       <View style={styles.borrowedBadge}>
-        <Text style={styles.borrowedBadgeText}>💛 In prestito</Text>
+        <Text style={styles.borrowedBadgeText}>{t('carte.borrowedBadge')}</Text>
       </View>
     ) : null;
 
@@ -116,7 +117,7 @@ export default function CarteScreen() {
 
       <TextInput
         style={styles.searchInput}
-        placeholder="Cerca una carta"
+        placeholder={t('carte.searchPlaceholder')}
         placeholderTextColor="#aaa"
         value={filtro}
         onChangeText={setFiltro}
@@ -142,8 +143,8 @@ export default function CarteScreen() {
               strokeLinejoin="round"
             />
           </Svg>
-          <Text style={styles.emptyText} accessibilityLabel="Tocca il più per aggiungere la tua prima card">
-            TOCCA IL + {'\n'}PER AGGIUNGERE LA TUA PRIMA CARD
+          <Text style={styles.emptyText} accessibilityLabel={t('carte.emptyAccessibility')}>
+            {t('carte.emptyText')}
           </Text>
         </View>
       ) : (

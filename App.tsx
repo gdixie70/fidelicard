@@ -16,8 +16,17 @@ import { TouchableOpacity, Text, Platform } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { initRemoteBrands } from './utils/remoteBrands';
 import LendRequestHandler from './components/LendRequestHandler';
-import googleMobileAds, { isNativeAdsAvailable } from './utils/ads';
+import { initializeAdsWithConsent } from './utils/ads';
 import ActionSheet, { ActionSheetItem } from './components/ActionSheet';
+import InviteQrModal from './components/InviteQrModal';
+import { t } from './utils/i18n';
+
+// Tab centrale "Invita": non ha una vera schermata, l'onPress viene
+// intercettato in Tab.Screen "Invita" (listeners.tabPress) per aprire il
+// QR invece di navigare.
+function EmptyScreen() {
+  return null;
+}
 
 export type RootStackParamList = {
   Home: undefined;
@@ -42,10 +51,11 @@ const MyTheme = {
 
 function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) {
   const [addMenuVisible, setAddMenuVisible] = useState(false);
+  const [qrVisible, setQrVisible] = useState(false);
 
   const addActions: ActionSheetItem[] = [
-    { key: 'single', icon: '➕', label: 'Aggiungi una tessera', onPress: () => navigation.navigate('Aggiungi') },
-    { key: 'bulk', icon: '📥', label: 'Importa più tessere da foto', onPress: () => navigation.navigate('ImportaMassivo') },
+    { key: 'single', icon: '➕', label: t('app.addCard'), onPress: () => navigation.navigate('Aggiungi') },
+    { key: 'bulk', icon: '📥', label: t('app.importBulk'), onPress: () => navigation.navigate('ImportaMassivo') },
   ];
 
   return (
@@ -72,7 +82,7 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
           component={CarteScreen}
           options={{
             title: 'FideliCard',
-            tabBarLabel: 'Home',
+            tabBarLabel: t('tabs.home'),
             tabBarIcon: ({ color, size, focused }) => (
               <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
             ),
@@ -89,10 +99,26 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
           }}
         />
         <Tab.Screen
+          name="Invita"
+          component={EmptyScreen}
+          options={{
+            title: t('tabs.invite'),
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="qr-code-outline" size={size} color={color} />
+            ),
+          }}
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault();
+              setQrVisible(true);
+            },
+          }}
+        />
+        <Tab.Screen
           name="Collabora"
           component={CollaboraScreen}
           options={{
-            title: 'Collabora',
+            title: t('tabs.collabora'),
             tabBarIcon: ({ color, size, focused }) => (
               <MaterialCommunityIcons
                 name={focused ? 'handshake' : 'handshake-outline'}
@@ -104,6 +130,7 @@ function Tabs({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>
         />
       </Tab.Navigator>
       <ActionSheet visible={addMenuVisible} items={addActions} onClose={() => setAddMenuVisible(false)} />
+      <InviteQrModal visible={qrVisible} onClose={() => setQrVisible(false)} />
     </>
   );
 }
@@ -116,11 +143,9 @@ export default function App() {
     initRemoteBrands();
 
     // In Expo Go il modulo nativo degli annunci non esiste: inizializzarlo
-    // manderebbe in crash l'app. Disponibile solo in una dev/production
-    // build (vedi utils/ads.ts).
-    if (isNativeAdsAvailable && googleMobileAds) {
-      googleMobileAds.default().initialize();
-    }
+    // manderebbe in crash l'app. Gestisce da sola ATT + consenso GDPR prima
+    // di inizializzare l'SDK (vedi utils/ads.ts).
+    initializeAdsWithConsent();
   }, []);
 
   return (
@@ -135,27 +160,27 @@ export default function App() {
         <Stack.Screen
           name="Aggiungi"
           component={AddCardScreen}
-          options={{ title: 'Aggiungi Carta' }}
+          options={{ title: t('app.screenTitle.addCard') }}
         />
         <Stack.Screen
           name="MostraCodice"
           component={ShowCodeScreen}
-          options={{ title: 'Codice Tessera' }}
+          options={{ title: t('app.screenTitle.showCode') }}
         />
         <Stack.Screen
           name="ScanCodice"
           component={ScanCodeScreen}
-          options={{ title: 'Scansiona codice' }}
+          options={{ title: t('app.screenTitle.scan') }}
         />
         <Stack.Screen
           name="ImportaMassivo"
           component={BulkImportScreen}
-          options={{ title: 'Importa più tessere' }}
+          options={{ title: t('app.screenTitle.bulkImport') }}
         />
         <Stack.Screen
           name="Info"
           component={AboutScreen}
-          options={{ title: 'Come funziona' }}
+          options={{ title: t('app.screenTitle.info') }}
         />
       </Stack.Navigator>
     </NavigationContainer>

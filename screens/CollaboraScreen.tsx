@@ -22,6 +22,7 @@ import CardTile from '../components/CardTile';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 import PromptModal from '../components/PromptModal';
 import AdBanner from '../components/AdBanner';
+import { t } from '../utils/i18n';
 
 const DEFAULT_CARD_COLOR = '#1E1E1E';
 
@@ -128,8 +129,8 @@ export default function CollaboraScreen() {
     const next = await updateCardById(card.id, { prestiti: [...prestitiPrecedenti, nuovoPrestito] });
     setCarte(next.filter((c) => !isExpired(c.scadenza)));
 
-    const scadenzaTesto = scadenzaIso ? `fino al ${formatDateIt(scadenzaIso)}` : 'senza scadenza';
-    const message = `Ti presto la tessera ${card.nome} (${scadenzaTesto}). Tocca per aggiungerla in FideliCard: ${link}`;
+    const scadenzaTesto = scadenzaIso ? t('common.until', { date: formatDateIt(scadenzaIso) }) : t('common.noExpiry');
+    const message = t('collabora.shareMessage', { name: card.nome, expiry: scadenzaTesto, link });
 
     setPendingLend(null);
     if (Platform.OS === 'ios') {
@@ -159,12 +160,12 @@ export default function CollaboraScreen() {
 
   const removePrestito = (card: Carta, destinatario: string) => {
     Alert.alert(
-      "Togliere dall'elenco?",
-      `"${destinatario}" verrà tolto dall'elenco di chi ha ricevuto questa tessera in prestito (è solo un promemoria: la sua copia non viene toccata).`,
+      t('collabora.removeTitle'),
+      t('collabora.removeBody', { name: destinatario }),
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Togli',
+          text: t('collabora.removeConfirm'),
           style: 'destructive',
           onPress: async () => {
             const nuoviPrestiti = (card.prestiti || []).filter((p) => p.destinatario !== destinatario);
@@ -195,13 +196,12 @@ export default function CollaboraScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.scroll}>
         <Text style={styles.intro}>
-          Presta le tue tessere a chi ti sta vicino, o tieni traccia di chi ti ha prestato le sue — utile se vi
-          dividete i punti di negozi diversi.
+          {t('collabora.intro')}
         </Text>
 
-        <Text style={styles.sectionTitle}>Presta una tessera</Text>
+        <Text style={styles.sectionTitle}>{t('collabora.sectionLend')}</Text>
         {carteProprie.length === 0 ? (
-          <Text style={styles.emptyHint}>Non hai ancora nessuna tessera da prestare.</Text>
+          <Text style={styles.emptyHint}>{t('collabora.emptyHint')}</Text>
         ) : (
           <View style={styles.grid}>
             {carteProprie.map((item) => (
@@ -212,14 +212,14 @@ export default function CollaboraScreen() {
 
         {carteChePresti.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>⭐ Prestate da te</Text>
+            <Text style={styles.sectionTitle}>{t('collabora.sectionLentByYou')}</Text>
             {carteChePresti.map((card) => (
               <View key={card.id} style={styles.listBox}>
                 <Text style={styles.listBoxTitle}>{card.nome}</Text>
                 {(card.prestiti || []).map((p) => (
                   <View key={p.destinatario} style={styles.lendRow}>
                     <Text style={styles.lendRowText}>
-                      {p.destinatario} — {p.scadenza ? `fino al ${formatDateIt(p.scadenza)}` : 'senza scadenza'}
+                      {p.destinatario} — {p.scadenza ? t('common.until', { date: formatDateIt(p.scadenza) }) : t('common.noExpiry')}
                     </Text>
                     <TouchableOpacity onPress={() => removePrestito(card, p.destinatario)}>
                       <Text style={styles.lendRowRemove}>✕</Text>
@@ -233,11 +233,11 @@ export default function CollaboraScreen() {
 
         {carteRicevute.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>💛 Ricevute in prestito</Text>
+            <Text style={styles.sectionTitle}>{t('collabora.sectionBorrowed')}</Text>
             {carteRicevute.map((card) => (
               <View key={card.id} style={styles.listBox}>
                 <Text style={styles.listBoxTitle}>{card.nome}</Text>
-                <Text style={styles.lendRowText}>Prestata da {card.prestataDa}</Text>
+                <Text style={styles.lendRowText}>{t('collabora.borrowedFrom', { name: card.prestataDa || '' })}</Text>
               </View>
             ))}
           </>
@@ -248,15 +248,15 @@ export default function CollaboraScreen() {
 
       <ActionSheet
         visible={!!lendCard}
-        title="Per quanto tempo?"
+        title={t('collabora.durationSheetTitle')}
         items={durationActions}
         onClose={() => setLendCardId(null)}
       />
       <PromptModal
         visible={askRecipient}
-        title="A chi presti questa tessera?"
-        placeholder="Nome del destinatario"
-        confirmLabel="Condividi"
+        title={t('collabora.recipientTitle')}
+        placeholder={t('collabora.recipientPlaceholder')}
+        confirmLabel={t('collabora.shareConfirm')}
         onConfirm={handleRecipientConfirmed}
         onCancel={() => {
           setAskRecipient(false);
@@ -266,9 +266,9 @@ export default function CollaboraScreen() {
       />
       <PromptModal
         visible={onboardingVisible}
-        title="Come ti chiami? Lo vedrà chi riceve una tua tessera in prestito, così sa che sei stato tu a mandarla. Non leggiamo nessun'altra impostazione o dato del telefono."
-        placeholder="Il tuo nome"
-        confirmLabel="Continua"
+        title={t('collabora.onboardingTitle')}
+        placeholder={t('collabora.namePlaceholder')}
+        confirmLabel={t('collabora.continueConfirm')}
         onConfirm={handleOnboardingConfirmed}
         onCancel={() => {
           setOnboardingVisible(false);

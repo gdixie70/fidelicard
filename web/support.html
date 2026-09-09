@@ -1,72 +1,72 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Supporto - FideliCard</title>
-<style>
-  :root {
-    --bg: #121212;
-    --card-bg: #1e1e1e;
-    --accent: #ff9800;
-    --text: #ffffff;
-    --text-dim: #b0b0b0;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-  .wrap { width: 100%; max-width: 480px; }
-  h1 { color: var(--accent); font-size: 24px; margin-bottom: 4px; }
-  p { color: #e0e0e0; font-size: 15px; line-height: 1.6; }
-  .box {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 18px 20px;
-    margin: 20px 0;
-  }
-  .box h2 { color: var(--accent); font-size: 15px; margin: 0 0 8px; }
-  .box p { margin: 0; color: var(--text-dim); font-size: 14px; }
-  a.button {
-    display: block;
-    text-align: center;
-    padding: 14px;
-    border-radius: 10px;
-    background: var(--accent);
-    color: #121212;
-    font-weight: 800;
-    text-decoration: none;
-    margin-top: 10px;
-  }
-  .todo { color: #ff5252; font-weight: 700; }
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supporto — FideliCard</title>
+<link rel="icon" href="assets/images/favicon.png" type="image/png">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<header class="site">
+  <div class="wrap">
+    <a href="index.html" class="brand">
+      <img class="logo" src="assets/images/icon-96.png" alt="FideliCard" width="32" height="32">
+      FideliCard
+    </a>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="index.html#funziona">Come funziona</a>
+      <a href="support.html" class="active">Supporto</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
   <div class="wrap">
     <h1>Supporto FideliCard</h1>
     <p>Hai trovato un problema, una tessera non riconosciuta o vuoi solo farci sapere cosa ne pensi? Scrivici.</p>
-
-    <div class="box">
-      <h2>Scrivici via email</h2>
-      <p>Rispondiamo di solito entro qualche giorno.</p>
-      <p class="todo">TODO: sostituire l'indirizzo email qui sotto e nell'attributo href.</p>
-      <a class="button" href="mailto:supporto@fidelicard.it">Invia un'email</a>
-    </div>
-
-    <div class="box">
-      <h2>Un negozio senza logo?</h2>
-      <p>Se aggiungi una tessera e non troviamo il logo del negozio, l'app ce lo segnala già in automatico
-      quando salvi la tessera — non serve scriverci apposta, ma sei benvenuto/a a mandarci una foto per
-      velocizzare le cose (dalla schermata di aggiunta tessera, quando manca il logo).</p>
-    </div>
   </div>
+</section>
+
+<section class="content">
+  <div class="wrap prose">
+    <div class="callout">
+      <strong>Scrivici via email</strong><br>
+      Rispondiamo di solito entro qualche giorno. <a href="mailto:assistenza@fidelicard.it">assistenza@fidelicard.it</a>
+    </div>
+
+    <div class="callout">
+      <strong>Un negozio senza logo?</strong><br>
+      Se aggiungi una tessera e non troviamo il logo del negozio, l'app ce lo segnala già in automatico quando salvi la tessera — non serve scriverci apposta, ma sei benvenuto/a a mandarci una foto per velocizzare le cose (dalla schermata di aggiunta tessera, quando manca il logo).
+    </div>
+
+    <a class="btn btn-primary" href="mailto:assistenza@fidelicard.it" style="margin-top:6px;">Invia un'email</a>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="index.html" class="brand">
+          <img class="logo" src="assets/images/icon-96.png" alt="FideliCard" width="32" height="32">
+          FideliCard
+        </a>
+        <p style="margin:8px 0 0; max-width:32ch;">Tutte le tue tessere fedeltà, in un posto solo.</p>
+      </div>
+      <nav>
+        <a href="index.html#funziona">Come funziona</a>
+        <a href="support.html">Supporto</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="mailto:assistenza@fidelicard.it">assistenza@fidelicard.it</a>
+      </nav>
+    </div>
+    <div class="bottom">© 2026 Service X — FideliCard</div>
+  </div>
+</footer>
+
 </body>
 </html>

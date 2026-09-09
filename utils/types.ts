@@ -11,6 +11,11 @@ export type Carta = {
   uso?: number;
   logoFile?: string | null;
   colore?: string;
+  // Icona scelta dall'utente quando non troviamo un logo ufficiale per
+  // questo negozio (nome di un'icona Ionicons, es. "cart-outline"). È solo
+  // un ripiego: appena il negozio ha un logo vero (locale o da
+  // brands.json), quello vince sempre e questa icona viene ignorata.
+  icon?: string | null;
   // Rimozione automatica di QUESTA carta (tipicamente su una copia ricevuta
   // in prestito): passata la data, la carta sparisce dal wallet di chi la
   // tiene. Non ha nessun effetto sulla carta originale di chi presta.

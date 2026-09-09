@@ -1,79 +1,88 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AdBanner from '../components/AdBanner';
+import { exportCards, importCards } from '../utils/cardBackup';
+import { isNativeIapAvailable } from '../utils/iap';
+import RemoveAdsButton from '../components/RemoveAdsButton';
+import googleMobileAds, { isNativeAdsAvailable } from '../utils/ads';
+import { t } from '../utils/i18n';
 
 type Step = { icon: string; title: string; text: string };
 type Point = { icon: string; title: string; text: string };
 
 const STEPS: Step[] = [
-  {
-    icon: 'add-circle-outline',
-    title: 'Aggiungi una tessera',
-    text: 'Scansiona il codice a barre dal vivo, importalo da una foto o da uno screenshot, oppure scrivi il numero a mano se non hai la tessera con te.',
-  },
-  {
-    icon: 'images-outline',
-    title: 'Importa più tessere insieme',
-    text: 'Vieni da un\'altra app e vuoi spostare tutte le tue tessere? Fai uno screenshot di ognuna, selezionale tutte insieme da "Importa più tessere da foto" e controllale prima di salvare - niente da rifare una alla volta.',
-  },
-  {
-    icon: 'barcode-outline',
-    title: 'Mostrala in cassa',
-    text: 'Tocca la tessera dalla Home: codice a barre e numero grandi e leggibili, pronti da inquadrare.',
-  },
-  {
-    icon: 'people-outline',
-    title: 'Condividi con chi vuoi',
-    text: 'Dalla pagina Collabora presti una tessera a un familiare o un amico, per il tempo che preferisci - utile per dividervi i punti di negozi diversi.',
-  },
+  { icon: 'add-circle-outline', title: t('about.step1Title'), text: t('about.step1Text') },
+  { icon: 'images-outline', title: t('about.step2Title'), text: t('about.step2Text') },
+  { icon: 'barcode-outline', title: t('about.step3Title'), text: t('about.step3Text') },
+  { icon: 'people-outline', title: t('about.step4Title'), text: t('about.step4Text') },
 ];
 
 const MANIFESTO: Point[] = [
-  {
-    icon: 'lock-closed-outline',
-    title: 'Le tue tessere restano tue',
-    text: 'Niente account, niente server: tutto quello che aggiungi resta salvato solo sul tuo telefono.',
-  },
-  {
-    icon: 'apps-outline',
-    title: 'Ogni tipo di tessera',
-    text: 'Supermercati, benzinai, farmacie, negozi di quartiere, programmi punti - non solo le grandi catene.',
-  },
-  {
-    icon: 'cloud-offline-outline',
-    title: 'Funziona anche offline',
-    text: 'Il codice a barre si vede sempre, anche senza connessione: in cassa non deve mai dipendere dal wifi del negozio.',
-  },
-  {
-    icon: 'flash-outline',
-    title: 'Veloce e senza fronzoli',
-    text: 'Apri l\'app, tocchi la tessera, mostri il codice. Fatto.',
-  },
-  {
-    icon: 'card-outline',
-    title: 'Solo tessere fedeltà, niente altro',
-    text: 'Non è un\'app di pagamenti e non è una carta di credito: non ti chiediamo mai dati bancari, e non ti spingiamo verso altri servizi.',
-  },
-  {
-    icon: 'sync-outline',
-    title: 'Loghi sempre aggiornati',
-    text: 'Il database dei negozi si aggiorna da solo in background: nuovi brand e loghi arrivano senza bisogno di aggiornare l\'app.',
-  },
+  { icon: 'lock-closed-outline', title: t('about.point1Title'), text: t('about.point1Text') },
+  { icon: 'apps-outline', title: t('about.point2Title'), text: t('about.point2Text') },
+  { icon: 'cloud-offline-outline', title: t('about.point3Title'), text: t('about.point3Text') },
+  { icon: 'flash-outline', title: t('about.point4Title'), text: t('about.point4Text') },
+  { icon: 'card-outline', title: t('about.point5Title'), text: t('about.point5Text') },
+  { icon: 'sync-outline', title: t('about.point6Title'), text: t('about.point6Text') },
 ];
 
 export default function AboutScreen() {
+  const [busy, setBusy] = useState<'export' | 'import' | null>(null);
+
+  const handleExport = async () => {
+    if (busy) return;
+    setBusy('export');
+    try {
+      const result = await exportCards();
+      if (!result) {
+        Alert.alert(t('about.exportEmptyTitle'), t('about.exportEmptyBody'));
+      }
+    } catch (err) {
+      Alert.alert(t('common.error'), t('about.exportErrorBody'));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleImport = async () => {
+    if (busy) return;
+    setBusy('import');
+    try {
+      const result = await importCards();
+      if (!result) return; // annullato dall'utente
+      Alert.alert(
+        t('about.importedTitle'),
+        t('about.importedAdded', { count: result.added }) +
+          (result.skipped > 0 ? t('about.importedSkipped', { count: result.skipped }) : '')
+      );
+    } catch (err) {
+      Alert.alert(t('common.error'), t('about.importErrorBody'));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleManageConsent = async () => {
+    if (!isNativeAdsAvailable || !googleMobileAds) return;
+    try {
+      await googleMobileAds.AdsConsent.showPrivacyOptionsForm();
+    } catch {
+      // Il form non è disponibile (es. fuori dallo Spazio Economico
+      // Europeo, dove il consenso non serve): niente da fare.
+    }
+  };
+
   return (
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView style={styles.scrollFlex} contentContainerStyle={styles.container}>
-        <Text style={styles.heroTitle}>Le tue tessere fedeltà,{'\n'}tutte in un posto solo</Text>
+        <Text style={styles.heroTitle}>{t('about.heroTitle')}</Text>
         <Text style={styles.heroSubtitle}>
-          FideliCard raccoglie tutte le tue tessere fedeltà in un'unica app semplice e veloce - senza account, senza
-          dati che escono dal telefono, senza trasformarsi in altro.
+          {t('about.heroSubtitle')}
         </Text>
 
-        <Text style={styles.sectionTitle}>Come funziona</Text>
+        <Text style={styles.sectionTitle}>{t('about.sectionHow')}</Text>
         {STEPS.map((step) => (
           <View key={step.title} style={styles.row}>
             <View style={styles.rowIcon}>
@@ -86,7 +95,7 @@ export default function AboutScreen() {
           </View>
         ))}
 
-        <Text style={styles.sectionTitle}>Perché FideliCard</Text>
+        <Text style={styles.sectionTitle}>{t('about.sectionWhy')}</Text>
         {MANIFESTO.map((point) => (
           <View key={point.title} style={styles.row}>
             <View style={styles.rowIcon}>
@@ -98,6 +107,34 @@ export default function AboutScreen() {
             </View>
           </View>
         ))}
+
+        <Text style={styles.sectionTitle}>{t('about.sectionBackup')}</Text>
+        <Text style={styles.backupIntro}>
+          {t('about.backupIntro')}
+        </Text>
+        <TouchableOpacity style={styles.backupButton} onPress={handleExport} disabled={!!busy}>
+          <Ionicons name="download-outline" size={18} color="#FF9800" style={styles.backupButtonIcon} />
+          <Text style={styles.backupButtonText}>
+            {busy === 'export' ? t('about.exportingButton') : t('about.exportButton')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.backupButton} onPress={handleImport} disabled={!!busy}>
+          <Ionicons name="cloud-upload-outline" size={18} color="#FF9800" style={styles.backupButtonIcon} />
+          <Text style={styles.backupButtonText}>
+            {busy === 'import' ? t('about.importingButton') : t('about.importButton')}
+          </Text>
+        </TouchableOpacity>
+
+        {isNativeAdsAvailable && (
+          <>
+            <Text style={styles.sectionTitle}>{t('removeAds.sectionTitle')}</Text>
+            <Text style={styles.backupIntro}>{t('removeAds.intro')}</Text>
+            {isNativeIapAvailable && <RemoveAdsButton />}
+            <TouchableOpacity onPress={handleManageConsent}>
+              <Text style={styles.restoreText}>{t('removeAds.manageConsent')}</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
       <AdBanner style={styles.adBanner} />
@@ -159,6 +196,35 @@ const styles = StyleSheet.create({
   adBanner: {
     marginHorizontal: 20,
     marginTop: 8,
+    marginBottom: 8,
+  },
+  backupIntro: {
+    fontSize: 13,
+    color: '#999',
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  backupButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  backupButtonIcon: {
+    marginRight: 10,
+  },
+  backupButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  restoreText: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
     marginBottom: 8,
   },
 });

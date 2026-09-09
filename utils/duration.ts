@@ -1,3 +1,5 @@
+import { locale } from './i18n';
+
 export type DurationOption = {
   key: string;
   label: string;
@@ -7,19 +9,41 @@ export type DurationOption = {
   endOfToday?: boolean;
 };
 
+const LABELS_IT: Record<string, string> = {
+  '1h': '1 ora',
+  today: 'Oggi',
+  '1w': '1 settimana',
+  '1m': '1 mese',
+  '6m': '6 mesi',
+  '1y': '1 anno',
+  forever: 'Per sempre',
+};
+
+const LABELS_EN: Record<string, string> = {
+  '1h': '1 hour',
+  today: 'Today',
+  '1w': '1 week',
+  '1m': '1 month',
+  '6m': '6 months',
+  '1y': '1 year',
+  forever: 'Forever',
+};
+
+const LABELS = locale === 'en' ? LABELS_EN : LABELS_IT;
+
 // Scelta volutamente semplice: poche opzioni fisse, niente calendario da
 // scorrere. Le durate brevi (1 ora / oggi) coprono il caso più comune del
 // prestito - "usa la mia carta per la spesa di oggi" - mentre "per sempre" è
 // pensato anche per una raccolta punti condivisa in famiglia, dove la
 // tessera resta "in prestito" senza una vera scadenza.
 export const DURATION_OPTIONS: DurationOption[] = [
-  { key: '1h', label: '1 ora', addHours: 1 },
-  { key: 'today', label: 'Oggi', endOfToday: true },
-  { key: '1w', label: '1 settimana', addDays: 7 },
-  { key: '1m', label: '1 mese', addMonths: 1 },
-  { key: '6m', label: '6 mesi', addMonths: 6 },
-  { key: '1y', label: '1 anno', addMonths: 12 },
-  { key: 'forever', label: 'Per sempre' },
+  { key: '1h', label: LABELS['1h'], addHours: 1 },
+  { key: 'today', label: LABELS.today, endOfToday: true },
+  { key: '1w', label: LABELS['1w'], addDays: 7 },
+  { key: '1m', label: LABELS['1m'], addMonths: 1 },
+  { key: '6m', label: LABELS['6m'], addMonths: 6 },
+  { key: '1y', label: LABELS['1y'], addMonths: 12 },
+  { key: 'forever', label: LABELS.forever },
 ];
 
 export function computeExpiryDate(option: DurationOption, from: Date = new Date()): Date | null {
@@ -40,7 +64,9 @@ export function computeExpiryDate(option: DurationOption, from: Date = new Date(
 
 export function formatDateIt(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return locale === 'en'
+    ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export function isExpired(iso: string | null | undefined): boolean {

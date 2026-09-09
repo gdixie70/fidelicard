@@ -1,8 +1,13 @@
 // Link "peer-to-peer": tutti i dati della tessera viaggiano dentro l'URL
-// stesso, non serve nessun server. Funziona solo da una build vera
-// dell'app (Expo Go non registra lo schema fidelicard:// col sistema).
+// stesso, non serve nessun server. Il link condiviso è un https:// (così
+// WhatsApp/SMS lo rendono cliccabile) che punta a prestito.html: quella
+// pagina, se l'app è installata, rilancia da sola lo schema fidelicard://
+// qui sotto, che è quello che l'app intercetta davvero (vedi
+// LendRequestHandler). Il solo fidelicard:// non è mai cliccabile in una
+// chat, quindi non va condiviso direttamente.
 const SCHEME = 'fidelicard';
 const HOST = 'prestito';
+const WEB_SHARE_URL = 'https://fidelicard.it/prestito.html';
 
 export type LendPayload = {
   nome: string;
@@ -22,7 +27,7 @@ export function buildLendLink(payload: LendPayload): string {
   params.set('da', payload.da);
   if (payload.scadenza) params.set('scadenza', payload.scadenza);
 
-  return `${SCHEME}://${HOST}?${params.toString()}`;
+  return `${WEB_SHARE_URL}?${params.toString()}`;
 }
 
 export function parseLendLink(url: string): LendPayload | null {

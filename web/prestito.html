@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ti hanno prestato una tessera - FideliCard</title>
+<link rel="icon" type="image/png" href="assets/images/favicon.png" />
 <style>
   :root {
     --bg: #121212;
@@ -25,6 +26,7 @@
     padding: 24px;
   }
   .wrap { width: 100%; max-width: 420px; text-align: center; }
+  .app-icon { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 10px 24px -8px rgba(255,110,0,0.45); }
   .app-name { color: var(--accent); font-weight: 800; font-size: 15px; letter-spacing: 0.5px; margin-bottom: 28px; }
   .card {
     border-radius: 20px;
@@ -44,6 +46,13 @@
     font-weight: 800;
     font-size: 30px;
     color: #1e1e1e;
+    overflow: hidden;
+  }
+  .card-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 12px;
   }
   .brand-name { font-size: 22px; font-weight: 800; margin: 0 0 6px; }
   .from-line { font-size: 14px; opacity: 0.85; margin: 0; }
@@ -67,6 +76,7 @@
 </head>
 <body>
   <div class="wrap">
+    <img class="app-icon" src="assets/images/icon-96.png" alt="Icona FideliCard" />
     <div class="app-name">FIDELICARD</div>
 
     <div id="loading">
@@ -88,11 +98,14 @@
 
     <div id="fallback">
       <p class="hint">Link non valido o incompleto. Chiedi a chi te l'ha mandato di riprovare.</p>
+      <p class="hint" style="margin-top:20px;"><a href="index.html">Scopri FideliCard</a></p>
     </div>
   </div>
 
 <script>
   (function () {
+    var LOGHI_BASE = 'https://raw.githubusercontent.com/gdixie70/fidelicard/main/assets/loghi/';
+
     var params = new URLSearchParams(window.location.search);
     var nome = params.get('nome');
     var codice = params.get('codice');
@@ -106,9 +119,26 @@
 
     var colore = params.get('colore') || '#1E1E1E';
     var scadenza = params.get('scadenza');
+    var logoFile = params.get('logoFile');
 
     document.getElementById('cardBox').style.background = colore;
-    document.getElementById('cardLogo').textContent = nome.trim().slice(0, 2).toUpperCase();
+
+    var logoEl = document.getElementById('cardLogo');
+    if (logoFile) {
+      // Stesso archivio pubblico dei loghi usato dall'app: se il file non
+      // esiste (o siamo offline) l'onerror fa comparire le iniziali,
+      // esattamente come nell'app quando il logo non è ancora disponibile.
+      var img = document.createElement('img');
+      img.src = LOGHI_BASE + encodeURIComponent(logoFile);
+      img.alt = nome;
+      img.onerror = function () {
+        logoEl.textContent = nome.trim().slice(0, 2).toUpperCase();
+      };
+      logoEl.appendChild(img);
+    } else {
+      logoEl.textContent = nome.trim().slice(0, 2).toUpperCase();
+    }
+
     document.getElementById('cardBrand').textContent = nome;
     document.getElementById('cardFrom').textContent = 'Te la presta ' + da;
 
@@ -122,18 +152,17 @@
       document.getElementById('cardExpiry').textContent = 'Senza scadenza';
     }
 
-    // Rilancia lo stesso link ma con lo schema dell'app, per aprirla
-    // direttamente se è installata.
+    // Il link apre lo schema dell'app solo quando l'utente tocca il
+    // bottone: niente redirect automatico, altrimenti il popup di sistema
+    // "Vuoi aprire questa pagina su FideliCard?" compare subito e copre la
+    // tessera prima ancora che si faccia in tempo a vederla.
     var appUrl = 'fidelicard://prestito?' + window.location.search.slice(1);
     document.getElementById('openAppBtn').setAttribute('href', appUrl);
     document.getElementById('hintText').textContent =
-      'Se non succede nulla, installa prima FideliCard dallo store e riapri questo link.';
+      'Se non hai ancora FideliCard, installala dallo store e riapri questo link.';
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = 'block';
-
-    // Prova ad aprire l'app in automatico appena la pagina carica.
-    window.location.href = appUrl;
   })();
 </script>
 </body>

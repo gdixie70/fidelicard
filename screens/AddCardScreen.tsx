@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
@@ -28,6 +29,7 @@ import BrandLogo from '../components/BrandLogo';
 import ActionSheet, { ActionSheetItem } from '../components/ActionSheet';
 import AdBanner from '../components/AdBanner';
 import { reportMissingLogo } from '../utils/missingLogoReport';
+import { t } from '../utils/i18n';
 
 const PRESET_COLORS = [
   '#1E1E1E',
@@ -42,6 +44,26 @@ const PRESET_COLORS = [
   '#6D4C41',
 ];
 
+// Icone generiche per categoria, da usare finché non arriva il logo vero
+// del negozio. Nomi Ionicons - la stessa libreria già usata nel resto
+// dell'app, nessuna dipendenza nuova.
+const ICON_OPTIONS = [
+  'storefront-outline',
+  'cart-outline',
+  'restaurant-outline',
+  'cafe-outline',
+  'medkit-outline',
+  'shirt-outline',
+  'paw-outline',
+  'barbell-outline',
+  'car-outline',
+  'book-outline',
+  'home-outline',
+  'gift-outline',
+  'cut-outline',
+  'pricetag-outline',
+];
+
 export default function AddCardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Aggiungi'>>();
@@ -53,6 +75,7 @@ export default function AddCardScreen() {
   const [logoUri, setLogoUri] = useState<any | null>(null);
   const [colore, setColore] = useState<string>('#1E1E1E');
   const [boxColor, setBoxColor] = useState<string | undefined>(undefined);
+  const [icon, setIcon] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<BrandMatch[]>([]);
   const [scadenza, setScadenza] = useState<string | null>(null);
   const [scadenzaPickerVisible, setScadenzaPickerVisible] = useState(false);
@@ -62,7 +85,7 @@ export default function AddCardScreen() {
   const [photoSourceVisible, setPhotoSourceVisible] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ title: editId ? 'Modifica Carta' : 'Aggiungi Carta' });
+    navigation.setOptions({ title: editId ? t('app.screenTitle.editCard') : t('app.screenTitle.addCard') });
   }, [editId]);
 
   // In modalità modifica, precarica i dati della carta esistente.
@@ -85,11 +108,13 @@ export default function AddCardScreen() {
         setLogoUri(info.logoUri);
         setColore(info.color);
         setBoxColor(info.boxColor);
+        setIcon(null);
       } else {
         setLogoFile(found.logoFile ?? null);
         setLogoUri(found.logoFile ? logoMap[found.logoFile] ?? null : null);
         setColore(found.colore ?? '#1E1E1E');
         setBoxColor(undefined);
+        setIcon(found.icon ?? null);
       }
       setConfirmedBrand(found.nome);
     })();
@@ -134,6 +159,7 @@ export default function AddCardScreen() {
     setLogoUri(info.logoUri);
     setColore(info.color);
     setBoxColor(info.boxColor);
+    setIcon(null);
     setConfirmedBrand(info.brand);
     setSuggestions([]);
   };
@@ -143,6 +169,7 @@ export default function AddCardScreen() {
     setLogoUri(null);
     setColore('#1E1E1E');
     setBoxColor(undefined);
+    setIcon(null);
     setConfirmedBrand(null);
     setSuggestions([]);
   };
@@ -155,7 +182,7 @@ export default function AddCardScreen() {
   const pickFromLibrary = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permesso negato', "Consenti l'accesso alle foto per importare uno screenshot della tessera.");
+      Alert.alert(t('common.permissionDenied'), t('addCard.permissionPhotoBody'));
       return;
     }
 
@@ -174,10 +201,7 @@ export default function AddCardScreen() {
     }
 
     if (!codiceTrovato) {
-      Alert.alert(
-        'Codice non trovato',
-        "Non ho riconosciuto nessun codice a barre nell'immagine. Prova con uno screenshot più nitido, inquadrando solo il codice, oppure usa la fotocamera dal vivo."
-      );
+      Alert.alert(t('addCard.codeNotFoundTitle'), t('addCard.codeNotFoundBody'));
     }
   };
 
@@ -190,10 +214,8 @@ export default function AddCardScreen() {
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       Alert.alert(
-        'Permesso negato',
-        useCamera
-          ? "Consenti l'accesso alla fotocamera per scattare la foto."
-          : "Consenti l'accesso alle foto per sceglierne una."
+        t('common.permissionDenied'),
+        useCamera ? t('addCard.permissionCameraBody') : t('addCard.permissionLibraryBody')
       );
       return;
     }
@@ -205,13 +227,13 @@ export default function AddCardScreen() {
 
     const available = await Sharing.isAvailableAsync();
     if (!available) {
-      Alert.alert('Condivisione non disponibile', 'Il tuo dispositivo non supporta la condivisione di file.');
+      Alert.alert(t('addCard.sharingUnavailableTitle'), t('addCard.sharingUnavailableBody'));
       return;
     }
 
     try {
       await Sharing.shareAsync(result.assets[0].uri, {
-        dialogTitle: `Logo mancante: ${nome.trim()}`,
+        dialogTitle: t('addCard.missingLogoShareTitle', { name: nome.trim() }),
       });
     } catch {
       // l'utente ha semplicemente chiuso il foglio di condivisione
@@ -220,11 +242,11 @@ export default function AddCardScreen() {
 
   const saveCard = async () => {
     if (!nome.trim()) {
-      Alert.alert('Errore', 'Inserisci il nome della carta.');
+      Alert.alert(t('common.error'), t('addCard.errorNameBody'));
       return;
     }
     if (!codice.trim()) {
-      Alert.alert('Errore', 'Inserisci il codice della carta.');
+      Alert.alert(t('common.error'), t('addCard.errorCodeBody'));
       return;
     }
 
@@ -241,6 +263,7 @@ export default function AddCardScreen() {
             codice: codice.trim(),
             logoFile,
             colore,
+            icon: logoUri ? null : icon,
             scadenza,
           };
         }
@@ -251,6 +274,7 @@ export default function AddCardScreen() {
           codice: codice.trim(),
           logoFile,
           colore,
+          icon: logoUri ? null : icon,
           scadenza,
         });
       }
@@ -275,14 +299,16 @@ export default function AddCardScreen() {
 
   const scadenzaActions: ActionSheetItem[] = DURATION_OPTIONS.map((option) => ({
     key: option.key,
-    label: option.key === 'forever' ? 'Nessuna (non rimuovere mai)' : `Tra ${option.label}`,
+    label: option.key === 'forever' ? t('addCard.expiryNeverOption') : t('addCard.expiryInOption', { label: option.label }),
     onPress: () => {
       const expiry = computeExpiryDate(option);
       setScadenza(expiry ? expiry.toISOString() : null);
     },
   }));
 
-  const scadenzaLabel = scadenza ? `Rimozione automatica il ${formatDateIt(scadenza)}` : 'Nessuna rimozione automatica';
+  const scadenzaLabel = scadenza
+    ? t('addCard.expiryLabelSet', { date: formatDateIt(scadenza) })
+    : t('addCard.expiryLabelNone');
 
   return (
     <KeyboardAvoidingView
@@ -295,7 +321,7 @@ export default function AddCardScreen() {
       <ScrollView style={styles.formScroll} keyboardShouldPersistTaps="handled">
       <TextInput
         style={styles.input}
-        placeholder="Nome carta"
+        placeholder={t('addCard.namePlaceholder')}
         placeholderTextColor="#aaa"
         value={nome}
         onChangeText={setNome}
@@ -323,7 +349,7 @@ export default function AddCardScreen() {
       <View style={styles.codiceRow}>
         <TextInput
           style={[styles.input, styles.codiceInput]}
-          placeholder="Codice tessera"
+          placeholder={t('common.cardCodePlaceholder')}
           placeholderTextColor="#aaa"
           value={codice}
           onChangeText={setCodice}
@@ -332,26 +358,26 @@ export default function AddCardScreen() {
         <TouchableOpacity
           style={styles.scanButton}
           onPress={() => navigation.navigate('ScanCodice')}
-          accessibilityLabel="Scansiona il codice a barre"
+          accessibilityLabel={t('addCard.scanAccessibility')}
         >
           <Text style={styles.scanButtonIcon}>📷</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.scanButton}
           onPress={pickFromLibrary}
-          accessibilityLabel="Importa il codice da una foto della libreria"
+          accessibilityLabel={t('addCard.importAccessibility')}
         >
           <Text style={styles.scanButtonIcon}>🖼️</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.codiceHint}>
-        Non hai la tessera con te? Scrivi qui il numero che vedi stampato (o mostrato a schermo) sotto al codice a barre.
+        {t('addCard.codeHint')}
       </Text>
 
       {nome.trim().length > 0 && (
         <View style={[styles.preview, { backgroundColor: logoUri ? boxColor || '#FFFFFF' : colore }]}>
           <View style={styles.previewLogo}>
-            <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} />
+            <BrandLogo brand={nome} color={colore} logoSource={logoUri} logoFile={logoFile} icon={icon} />
           </View>
         </View>
       )}
@@ -359,7 +385,7 @@ export default function AddCardScreen() {
       {nome.trim().length > 0 && !logoUri && (
         <View style={styles.colorPickerBox}>
           <Text style={styles.colorPickerLabel}>
-            Nessun logo trovato per questo negozio: scegli un colore per la tessera.
+            {t('addCard.noLogoLabel')}
           </Text>
           <View style={styles.colorRow}>
             {PRESET_COLORS.map((c) => (
@@ -375,8 +401,21 @@ export default function AddCardScreen() {
               />
             ))}
           </View>
+          <Text style={styles.colorPickerLabel}>{t('addCard.chooseIconLabel')}</Text>
+          <View style={styles.iconRow}>
+            {ICON_OPTIONS.map((name) => (
+              <TouchableOpacity
+                key={name}
+                style={[styles.iconSwatch, icon === name && styles.iconSwatchSelected]}
+                onPress={() => setIcon(icon === name ? null : name)}
+                accessibilityLabel={name}
+              >
+                <Ionicons name={name as any} size={20} color={icon === name ? '#FF9800' : '#ccc'} />
+              </TouchableOpacity>
+            ))}
+          </View>
           <TouchableOpacity style={styles.sendPhotoButton} onPress={() => setPhotoSourceVisible(true)}>
-            <Text style={styles.sendPhotoButtonText}>📷 Invia una foto del logo/tessera</Text>
+            <Text style={styles.sendPhotoButtonText}>{t('addCard.sendPhotoButton')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -386,7 +425,7 @@ export default function AddCardScreen() {
         <View style={{ flex: 1 }}>
           <Text style={styles.scadenzaLabel}>{scadenzaLabel}</Text>
           <Text style={styles.scadenzaHint}>
-            Utile se questa è una tessera avuta in prestito: sparisce da sola dopo la data scelta.
+            {t('addCard.expiryHint')}
           </Text>
         </View>
         <Text style={styles.scadenzaChevron}>›</Text>
@@ -394,23 +433,23 @@ export default function AddCardScreen() {
       </ScrollView>
 
       <TouchableOpacity style={styles.button} onPress={saveCard}>
-        <Text style={styles.buttonText}>{editId ? 'Salva modifiche' : 'Salva'}</Text>
+        <Text style={styles.buttonText}>{editId ? t('addCard.saveEdit') : t('addCard.saveNew')}</Text>
       </TouchableOpacity>
 
       <AdBanner style={styles.adBanner} />
 
       <ActionSheet
         visible={scadenzaPickerVisible}
-        title="Rimuovi automaticamente"
+        title={t('addCard.expirySheetTitle')}
         items={scadenzaActions}
         onClose={() => setScadenzaPickerVisible(false)}
       />
       <ActionSheet
         visible={photoSourceVisible}
-        title="Foto del logo/tessera"
+        title={t('addCard.photoSheetTitle')}
         items={[
-          { key: 'camera', icon: '📷', label: 'Scatta una foto', onPress: () => sendLogoPhoto(true) },
-          { key: 'library', icon: '🖼️', label: 'Scegli dalla libreria', onPress: () => sendLogoPhoto(false) },
+          { key: 'camera', icon: '📷', label: t('addCard.takePhoto'), onPress: () => sendLogoPhoto(true) },
+          { key: 'library', icon: '🖼️', label: t('addCard.chooseFromLibrary'), onPress: () => sendLogoPhoto(false) },
         ]}
         onClose={() => setPhotoSourceVisible(false)}
       />
@@ -543,6 +582,26 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderColor: '#fff',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 4,
+  },
+  iconSwatch: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: '#2C2C2C',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  iconSwatchSelected: {
+    borderColor: '#FF9800',
   },
   sendPhotoButton: {
     marginTop: 4,

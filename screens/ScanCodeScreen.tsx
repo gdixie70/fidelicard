@@ -11,6 +11,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { RootStackParamList } from '../App';
+import { restoreLeadingZero } from '../utils/barcodeFormat';
+import { t } from '../utils/i18n';
 
 const FRAME_HEIGHT = 140;
 
@@ -53,10 +55,11 @@ export default function ScanCodeScreen() {
     transform: [{ translateY: scanLineY.value }],
   }));
 
-  const handleScanned = ({ data }: BarcodeScanningResult) => {
+  const handleScanned = ({ data, type }: BarcodeScanningResult) => {
     if (scanned || !data) return;
     setScanned(true);
-    navigation.navigate('Aggiungi', { scannedCode: data });
+    const isUpcOrEan13 = type === 'upc_a' || type === 'upc_e' || type === 'ean13';
+    navigation.navigate('Aggiungi', { scannedCode: restoreLeadingZero(data, isUpcOrEan13) });
   };
 
   if (!permission) {
@@ -67,10 +70,10 @@ export default function ScanCodeScreen() {
     return (
       <View style={[styles.container, styles.centered]}>
         <Text style={styles.permissionText}>
-          Per scansionare il codice della tessera, consenti l'accesso alla fotocamera.
+          {t('scan.permissionText')}
         </Text>
         <TouchableOpacity style={styles.button} onPress={requestPermission}>
-          <Text style={styles.buttonText}>Consenti fotocamera</Text>
+          <Text style={styles.buttonText}>{t('scan.allowCamera')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -88,7 +91,7 @@ export default function ScanCodeScreen() {
         <View style={styles.frame}>
           <Animated.View style={[styles.scanLine, scanLineStyle]} />
         </View>
-        <Text style={styles.hint}>Inquadra il codice a barre della tessera</Text>
+        <Text style={styles.hint}>{t('scan.hint')}</Text>
       </View>
     </View>
   );

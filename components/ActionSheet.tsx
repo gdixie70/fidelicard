@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { t } from '../utils/i18n';
 
 export type ActionSheetItem = {
   key: string;
@@ -54,7 +55,7 @@ export default function ActionSheet({ visible, title, items, onClose }: Props) {
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={styles.cancelRow} onPress={onClose}>
-              <Text style={styles.cancelLabel}>Annulla</Text>
+              <Text style={styles.cancelLabel}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </SafeAreaView>
         </Pressable>

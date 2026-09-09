@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.gdixie70.fidelicard",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "Questo identificativo ci aiuta a mostrarti pubblicità più pertinente e a misurarne l'efficacia."
       }
     },
     "android": {
@@ -51,9 +52,20 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-3940256099942544~3347511713",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+          "iosAppId": "ca-app-pub-1231745392454227~5874517439"
         }
-      ]
+      ],
+      "expo-localization",
+      "expo-iap",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "kotlinVersion": "2.2.0"
+          }
+        }
+      ],
+      "expo-tracking-transparency"
     ],
     "extra": {
       "eas": {
