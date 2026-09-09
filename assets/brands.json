@@ -972,5 +972,12 @@
     "logoFile": "bluespirit.png",
     "color": "#051B3E",
     "domain": "bluespirit.com"
+  },
+  {
+    "prefix": "",
+    "brand": "Tigotà",
+    "logoFile": "tigota.png",
+    "color": "#009DAE",
+    "domain": "tigota.it"
   }
 ]
