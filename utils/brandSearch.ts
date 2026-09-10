@@ -78,7 +78,11 @@ export function searchBrands(query: string, limit = 6): BrandMatch[] {
     let score = 0;
 
     if (isNumeric) {
-      if (raw.startsWith(item.prefix)) score = 100;
+      // item.prefix può essere "" per i brand aggiunti senza un prefix EAN
+      // noto (es. da segnalazioni con logo mancante): senza questo controllo
+      // qualsiasi numero "inizia con" una stringa vuota e scavalcherebbe il
+      // vero brand.
+      if (item.prefix && raw.startsWith(item.prefix)) score = 100;
     } else if (name === q) {
       score = 100;
     } else if (name.startsWith(q)) {
