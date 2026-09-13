@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -67,13 +67,23 @@ export default function ScanCodeScreen() {
   }
 
   if (!permission.granted) {
+    // Una volta negato, iOS e Android non ripropongono più il popup di
+    // sistema: bisogna mandare l'utente nelle Impostazioni, altrimenti il
+    // pulsante sembra non fare nulla (schiacciato ma senza nessun effetto).
+    const canAskAgain = permission.canAskAgain;
+
     return (
       <View style={[styles.container, styles.centered]}>
         <Text style={styles.permissionText}>
-          {t('scan.permissionText')}
+          {t(canAskAgain ? 'scan.permissionText' : 'scan.permissionDeniedText')}
         </Text>
-        <TouchableOpacity style={styles.button} onPress={requestPermission}>
-          <Text style={styles.buttonText}>{t('scan.allowCamera')}</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={canAskAgain ? requestPermission : Linking.openSettings}
+        >
+          <Text style={styles.buttonText}>
+            {t(canAskAgain ? 'scan.allowCamera' : 'scan.openSettings')}
+          </Text>
         </TouchableOpacity>
       </View>
     );

@@ -80,6 +80,8 @@ const it: Dict = {
 
   'scan.permissionText': "Per scansionare il codice della tessera, consenti l'accesso alla fotocamera.",
   'scan.allowCamera': 'Consenti fotocamera',
+  'scan.permissionDeniedText': "L'accesso alla fotocamera è disattivato. Attivalo dalle impostazioni del telefono per poter scansionare.",
+  'scan.openSettings': 'Apri Impostazioni',
   'scan.hint': 'Inquadra il codice a barre della tessera',
 
   'bulkImport.permissionBody': "Consenti l'accesso alle foto per importare le tessere.",
@@ -264,6 +266,8 @@ const en: Dict = {
 
   'scan.permissionText': "To scan the card's barcode, allow camera access.",
   'scan.allowCamera': 'Allow camera',
+  'scan.permissionDeniedText': 'Camera access is off. Turn it on in your phone settings to scan.',
+  'scan.openSettings': 'Open Settings',
   'scan.hint': "Frame the card's barcode",
 
   'bulkImport.permissionBody': 'Allow photo access to import the cards.',
