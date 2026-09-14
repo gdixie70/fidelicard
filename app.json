@@ -69,7 +69,8 @@
           }
         }
       ],
-      "expo-tracking-transparency"
+      "expo-tracking-transparency",
+      "./plugins/withAndroidLintFix"
     ],
     "extra": {
       "eas": {
