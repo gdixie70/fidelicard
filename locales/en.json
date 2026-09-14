@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "FideliCard",
+  "NSCameraUsageDescription": "FideliCard uses the camera to scan your loyalty cards' barcode.",
+  "NSPhotoLibraryUsageDescription": "FideliCard accesses your photos to recognize the barcode from a screenshot or a photo of the card.",
+  "NSUserTrackingUsageDescription": "This identifier helps us show you more relevant ads and measure how well they perform."
+}

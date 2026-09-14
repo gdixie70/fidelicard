@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "FideliCard",
+  "NSCameraUsageDescription": "FideliCard usa la fotocamera per scansionare il codice a barre delle tue tessere fedeltà.",
+  "NSPhotoLibraryUsageDescription": "FideliCard accede alle tue foto per riconoscere il codice a barre da uno screenshot o da una foto della tessera.",
+  "NSUserTrackingUsageDescription": "Questo identificativo ci aiuta a mostrarti pubblicità più pertinente e a misurarne l'efficacia."
+}

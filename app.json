@@ -13,6 +13,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "locales": {
+      "it": "./locales/it.json",
+      "en": "./locales/en.json"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gdixie70.fidelicard",

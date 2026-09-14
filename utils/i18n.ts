@@ -79,7 +79,7 @@ const it: Dict = {
   'addCard.errorCodeBody': 'Inserisci il codice della carta.',
 
   'scan.permissionText': "Per scansionare il codice della tessera, consenti l'accesso alla fotocamera.",
-  'scan.allowCamera': 'Consenti fotocamera',
+  'scan.allowCamera': 'Continua',
   'scan.permissionDeniedText': "L'accesso alla fotocamera è disattivato. Attivalo dalle impostazioni del telefono per poter scansionare.",
   'scan.openSettings': 'Apri Impostazioni',
   'scan.hint': 'Inquadra il codice a barre della tessera',
@@ -265,7 +265,7 @@ const en: Dict = {
   'addCard.errorCodeBody': "Enter the card's code.",
 
   'scan.permissionText': "To scan the card's barcode, allow camera access.",
-  'scan.allowCamera': 'Allow camera',
+  'scan.allowCamera': 'Continue',
   'scan.permissionDeniedText': 'Camera access is off. Turn it on in your phone settings to scan.',
   'scan.openSettings': 'Open Settings',
   'scan.hint': "Frame the card's barcode",
