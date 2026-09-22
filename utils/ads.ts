@@ -40,6 +40,12 @@ export async function initializeAdsWithConsent(): Promise<void> {
 
   if (Platform.OS === 'ios') {
     try {
+      // Chiamata dal primo useEffect di App.tsx, quindi potenzialmente
+      // prima che la finestra nativa sia del tutto attiva: richiesto troppo
+      // presto, iOS può ignorare la richiesta senza mostrare il popup (mai
+      // più riproposto finché l'utente non risponde). Un piccolo ritardo
+      // evita la corsa senza essere percepibile.
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const { requestTrackingPermissionsAsync } = await import('expo-tracking-transparency');
       await requestTrackingPermissionsAsync();
     } catch {
