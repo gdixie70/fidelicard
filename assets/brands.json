@@ -980,5 +980,12 @@
     "color": "#009DAE",
     "domain": "tigota.it",
     "boxColor": "#009DAE"
+  },
+  {
+    "prefix": "",
+    "brand": "Galbusera",
+    "logoFile": "galbusera.png",
+    "color": "#173B70",
+    "domain": "galbusera.it"
   }
 ]
