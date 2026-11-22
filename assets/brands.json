@@ -994,5 +994,12 @@
     "logoFile": "euroverdebio_v2.png",
     "color": "#009D4D",
     "boxColor": "#009D4D"
+  },
+  {
+    "prefix": "",
+    "brand": "Scarpe&Scarpe",
+    "logoFile": "scarpe_e_scarpe.png",
+    "color": "#FFD900",
+    "domain": "scarpescarpestore.com"
   }
 ]
