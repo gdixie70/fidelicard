@@ -987,5 +987,12 @@
     "logoFile": "galbusera.png",
     "color": "#173B70",
     "domain": "galbusera.it"
+  },
+  {
+    "prefix": "",
+    "brand": "Euroverdebio",
+    "logoFile": "euroverdebio.png",
+    "color": "#009D4D",
+    "boxColor": "#009D4D"
   }
 ]
