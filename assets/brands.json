@@ -1001,5 +1001,11 @@
     "logoFile": "scarpe_e_scarpe.png",
     "color": "#FFD900",
     "domain": "scarpescarpestore.com"
+  },
+  {
+    "prefix": "",
+    "brand": "Fresh Ramen",
+    "logoFile": "fresh_ramen.png",
+    "color": "#861428"
   }
 ]
